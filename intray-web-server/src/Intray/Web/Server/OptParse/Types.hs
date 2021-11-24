@@ -63,3 +63,4 @@ data Settings = Settings
     setLoginCacheFile :: !FilePath
   }
   deriving (Show)
+
