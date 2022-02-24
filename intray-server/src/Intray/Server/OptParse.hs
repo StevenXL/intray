@@ -245,4 +245,3 @@ parseFlags =
             help "How many items a user can sync in the free plan"
           ]
       )
-
