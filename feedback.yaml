@@ -1,0 +1,20 @@
+loops:
+  ci: nix-build ci.nix --no-out-link
+
+  web-server:
+    script: |
+      stack install :intray-server :intray-web-server \
+        --fast \
+        --no-nix --system-ghc --ghc-options='-freverse-errors' \
+        --with-hpack hpack \
+        --no-nix-pure
+      killall intray-server >/dev/null 2>&1 || true
+      killall intray-web-server >/dev/null 2>&1 || true
+      cd /tmp
+      ~/.local/bin/intray-server --admin admin & disown
+      sleep 0.1
+      ~/.local/bin/intray-web-server & disown
+    env:
+      INTRAY_WEB_SERVER_API_URL: 'localhost:8000'
+      INTRAY_SERVER_LOG_LEVEL: 'Debug'
+      DEVELOPMENT: 'True'
