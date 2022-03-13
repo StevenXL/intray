@@ -13,10 +13,10 @@ import Intray.Server.Types
 serveGetPricing :: IntrayHandler (Maybe Pricing)
 serveGetPricing = do
   mMone <- asks envMonetisation
-  forM mMone $ \MonetisationEnv {..} -> do
-    let StripeSettings {..} = monetisationEnvStripeSettings
+  forM mMone $ \MonetisationSettings {..} -> do
+    let StripeSettings {..} = monetisationSetStripeSettings
     let pricingPlan = stripeSetPlan
-        pricingPrice = monetisationEnvPrice
+        pricingPrice = monetisationSetPrice
         pricingStripePublishableKey = stripeSetPublishableKey
-        pricingMaxItemsFree = monetisationEnvMaxItemsFree
+        pricingMaxItemsFree = monetisationSetMaxItemsFree
     pure Pricing {..}

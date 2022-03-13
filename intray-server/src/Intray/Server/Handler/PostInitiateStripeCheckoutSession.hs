@@ -29,11 +29,11 @@ servePostInitiateStripeCheckoutSession ::
   InitiateStripeCheckoutSession ->
   IntrayHandler InitiatedCheckoutSession
 servePostInitiateStripeCheckoutSession AuthCookie {..} iscs = do
-  mMonetisationEnv <- asks envMonetisation
-  case mMonetisationEnv of
+  mMonetisationSettings <- asks envMonetisation
+  case mMonetisationSettings of
     Nothing -> throwError err404
-    Just MonetisationEnv {..} -> do
-      let StripeSettings {..} = monetisationEnvStripeSettings
+    Just MonetisationSettings {..} -> do
+      let StripeSettings {..} = monetisationSetStripeSettings
       let config =
             Stripe.defaultConfiguration
               { configSecurityScheme = bearerAuthenticationSecurityScheme stripeSetSecretKey

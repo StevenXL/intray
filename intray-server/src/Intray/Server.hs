@@ -37,14 +37,6 @@ runIntrayServer Settings {..} =
           signingKey <- liftIO $ loadSigningKey setSigningKeyFile
           let jwtCfg = defaultJWTSettings signingKey
           let cookieCfg = defaultCookieSettings
-          mMonetisationEnv <-
-            forM setMonetisationSettings $ \MonetisationSettings {..} -> do
-              pure
-                MonetisationEnv
-                  { monetisationEnvStripeSettings = monetisationSetStripeSettings,
-                    monetisationEnvMaxItemsFree = monetisationSetMaxItemsFree,
-                    monetisationEnvPrice = monetisationSetPrice
-                  }
           logFunc <- askLoggerIO
           let intrayEnv =
                 IntrayServerEnv
@@ -55,7 +47,7 @@ runIntrayServer Settings {..} =
                     envJWTSettings = jwtCfg,
                     envAdmins = setAdmins,
                     envFreeloaders = setFreeloaders,
-                    envMonetisation = mMonetisationEnv
+                    envMonetisation = setMonetisationSettings
                   }
           let runServer = Warp.run setPort $ intrayApp intrayEnv
           liftIO runServer

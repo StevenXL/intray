@@ -72,20 +72,20 @@ intrayTestConnectionSetupFunc = connectionPoolSetupFunc migrateAll
 
 paidIntrayTestClientEnvSetupFunc :: Int -> HTTP.Manager -> SetupFunc ClientEnv
 paidIntrayTestClientEnvSetupFunc maxFree man = do
-  let monetisationEnvStripeSettings =
+  let monetisationSetStripeSettings =
         StripeSettings
           { stripeSetPlan = "dummy-plan",
             stripeSetSecretKey = error "should not try to access stripe during testing",
             stripeSetPublishableKey = "Example, should not be used."
           }
-  let monetisationEnvPrice = "dummy price"
-  let monetisationEnvMaxItemsFree = maxFree
-  intrayTestClientEnvSetupFunc (Just MonetisationEnv {..}) man
+  let monetisationSetPrice = "dummy price"
+  let monetisationSetMaxItemsFree = maxFree
+  intrayTestClientEnvSetupFunc (Just MonetisationSettings {..}) man
 
-intrayTestClientEnvSetupFunc :: Maybe MonetisationEnv -> HTTP.Manager -> SetupFunc ClientEnv
+intrayTestClientEnvSetupFunc :: Maybe MonetisationSettings -> HTTP.Manager -> SetupFunc ClientEnv
 intrayTestClientEnvSetupFunc menv man = intrayTestConnectionSetupFunc >>= intrayTestClientEnvSetupFunc' menv man
 
-intrayTestClientEnvSetupFunc' :: Maybe MonetisationEnv -> HTTP.Manager -> ConnectionPool -> SetupFunc ClientEnv
+intrayTestClientEnvSetupFunc' :: Maybe MonetisationSettings -> HTTP.Manager -> ConnectionPool -> SetupFunc ClientEnv
 intrayTestClientEnvSetupFunc' menv man pool = do
   signingKey <- liftIO Auth.generateKey
   let jwtCfg = defaultJWTSettings signingKey

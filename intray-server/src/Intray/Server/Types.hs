@@ -22,13 +22,7 @@ data IntrayServerEnv = IntrayServerEnv
     envJWTSettings :: !JWTSettings,
     envAdmins :: ![Username],
     envFreeloaders :: ![Username],
-    envMonetisation :: !(Maybe MonetisationEnv)
-  }
-
-data MonetisationEnv = MonetisationEnv
-  { monetisationEnvStripeSettings :: StripeSettings,
-    monetisationEnvMaxItemsFree :: !Int,
-    monetisationEnvPrice :: !Text
+    envMonetisation :: !(Maybe MonetisationSettings)
   }
 
 type IntrayHandler = ReaderT IntrayServerEnv (LoggingT Handler)

@@ -22,7 +22,7 @@ getUserPaidStatus userId = do
   mss <- asks envMonetisation
   case mss of
     Nothing -> pure NoPaymentNecessary
-    Just MonetisationEnv {..} -> do
+    Just MonetisationSettings {..} -> do
       mu <- runDB $ getBy $ UniqueUserIdentifier userId
       case mu of
         Nothing -> throwAll err404
@@ -40,7 +40,7 @@ getUserPaidStatus userId = do
                     Just u -> pure $ HasPaid u
                     Nothing -> do
                       c <- runDB $ count [IntrayItemUserId ==. userId]
-                      pure $ HasNotPaid (monetisationEnvMaxItemsFree - c)
+                      pure $ HasNotPaid (monetisationSetMaxItemsFree - c)
 
 hasSubscribed :: AccountUUID -> IntrayHandler (Maybe UTCTime)
 hasSubscribed uuid = runDB $ fmap (fmap (subscriptionEnd . entityVal)) $ getBy $ UniqueSubscriptionUser uuid
