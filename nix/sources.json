@@ -17,10 +17,10 @@
         "homepage": "",
         "owner": "NorfairKing",
         "repo": "feedback",
-        "rev": "58d58aa403fd4bc5126c8b3875ca54815e43787d",
-        "sha256": "01h86zdwwy60qkpgl7hwsl7s72w766hn6ay004xlk6900zfwxnzj",
+        "rev": "8cc1a0efaaad034ed28a346742216a4f82d74d01",
+        "sha256": "0x3p0ymgd9pr94sv9dchgfmgsgjpnxa1c5y586i64681kfy0dfca",
         "type": "tarball",
-        "url": "https://github.com/NorfairKing/feedback/archive/58d58aa403fd4bc5126c8b3875ca54815e43787d.tar.gz",
+        "url": "https://github.com/NorfairKing/feedback/archive/8cc1a0efaaad034ed28a346742216a4f82d74d01.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "gitignore": {

@@ -16,5 +16,5 @@ pkgs.haskell.lib.buildStackProject {
     unzip
     zlib
   ] ++ pre-commit.tools;
-  shellHook = pre-commit.run.shellHook;
+  shellHook = pre-commit.run.shellHook + pkgs.feedback.shellHook;
 }

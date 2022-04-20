@@ -1,7 +1,10 @@
 loops:
-  ci: nix-build ci.nix --no-out-link
+  ci:
+    description: Get CI Passing locally
+    command: nix-build ci.nix --no-out-link
 
   test-all:
+    description: Run all tests
     command: |
       stack test \
         --fast \
@@ -12,6 +15,7 @@ loops:
         --pedantic
 
   cli:
+    description: Work on the cli
     command: |
       stack test intray-cli \
         --fast \
@@ -21,6 +25,7 @@ loops:
         --test-arguments=''
 
   server:
+    description: Work on the API Server
     script: |
       stack install :intray-server \
         --fast \
@@ -36,6 +41,7 @@ loops:
       DEVELOPMENT: 'True'
 
   web-server:
+    description: Work on the web server
     script: |
       stack install :intray-server :intray-web-server \
         --fast \
