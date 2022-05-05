@@ -68,7 +68,7 @@ withFreeIntrayServer specFunc =
       modifyMaxSuccess (`div` 20) specFunc
 
 intrayTestConnectionSetupFunc :: SetupFunc ConnectionPool
-intrayTestConnectionSetupFunc = connectionPoolSetupFunc migrateAll
+intrayTestConnectionSetupFunc = connectionPoolSetupFunc serverAutoMigration
 
 paidIntrayTestClientEnvSetupFunc :: Int -> HTTP.Manager -> SetupFunc ClientEnv
 paidIntrayTestClientEnvSetupFunc maxFree man = do

@@ -33,7 +33,7 @@ runIntrayServer Settings {..} =
     filterLogger (\_ ll -> ll >= setLogLevel) $
       withSqlitePoolInfo setConnectionInfo 1 $
         \pool -> do
-          runResourceT $ flip runSqlPool pool $ runMigration migrateAll
+          runResourceT $ flip runSqlPool pool $ runMigration serverAutoMigration
           signingKey <- liftIO $ loadSigningKey setSigningKeyFile
           let jwtCfg = defaultJWTSettings signingKey
           let cookieCfg = defaultCookieSettings

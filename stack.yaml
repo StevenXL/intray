@@ -32,7 +32,7 @@ extra-deps:
     - mergeless-persistent
 
 - github: NorfairKing/sydtest
-  commit: 54b5d0bf59e5bdabd3be098780afee63fbbbf158
+  commit: e55fad0f6b8058a9b44c6c0d66bdd3c3be556d71
   subdirs:
     - sydtest
     - sydtest-discover
