@@ -28,7 +28,7 @@ import Intray.Data.Permission
 import Intray.Data.Username
 
 share
-  [mkPersist sqlSettings, mkMigrate "migrateAll"]
+  [mkPersist sqlSettings, mkMigrate "serverAutoMigration"]
   [persistLowerCase|
 
 User

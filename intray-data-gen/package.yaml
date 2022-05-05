@@ -36,9 +36,10 @@ tests:
     - genvalidity-sydtest
     - genvalidity-sydtest-aeson
     - genvalidity-text
-    - sydtest
+    - QuickCheck
+    - bytestring
     - intray-data
     - intray-data-gen
-    - QuickCheck
+    - sydtest
+    - sydtest-persistent-sqlite
     - text
-    - bytestring
