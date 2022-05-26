@@ -40,9 +40,9 @@ getAdminAccountR username = withAdminCreds $ \t -> withUserViaAdmin t username $
     $(widgetFile "admin/account")
 
 postAdminAccountDeleteR :: Username -> Handler Html
-postAdminAccountDeleteR uuid =
+postAdminAccountDeleteR username =
   withAdminCreds $ \t -> do
-    NoContent <- runClientOrErr $ clientAdminDeleteAccount t uuid
+    NoContent <- runClientOrErr $ clientAdminDeleteAccount t username
     redirect $ AdminR AdminPanelR
 
 getAdminAccountSetSubscriptionR :: Username -> Handler Html

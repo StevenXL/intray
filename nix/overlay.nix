@@ -110,18 +110,6 @@ in
               sha256 =
                 "sha256:1lqd60f1pml8zc93hgwcm6amkcy6rnbq3cyxqv5a3a25jnsnci23";
             };
-          intrayAndroidRelease =
-            let
-              repo =
-                final.fetchgit {
-                  url =
-                    "https://gitlab.com/Norfair/intray-android-release.git";
-                  rev = "1df1b0d332f1f1326b4b29bc467c6f7671783b13";
-                  sha256 =
-                    "sha256:0jwf87w8j65vj1v0jxbn5mpa8pj3drwk31w1xy5fdbf9ddq10bgf";
-                };
-            in
-            repo + "/app-release.apk";
         in
         overrideCabal (intrayPkgWithOwnComp "intray-web-server") (
           old:
@@ -139,7 +127,6 @@ in
                 ln -s ${icons-ttf} static/semantic/themes/default/assets/fonts/icons.ttf
                 ln -s ${icons-woff} static/semantic/themes/default/assets/fonts/icons.woff
                 ln -s ${icons-woff2} static/semantic/themes/default/assets/fonts/icons.woff2
-                ln -s ${intrayAndroidRelease} static/intray.apk
               '';
             postInstall = ''
               ${old.postInstall or ""}

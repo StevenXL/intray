@@ -55,7 +55,6 @@
         <div .column>
           <div .content>
             <ul>
-              <li> Mobile Android app
               <li> Application programming interface
               <li> Command line interface options included
               <li> Open source
