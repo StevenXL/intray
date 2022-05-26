@@ -74,6 +74,7 @@ library
     , http-client
     , intray-api
     , intray-data
+    , intray-stripe-client
     , jose
     , markdown
     , mergeless
@@ -92,7 +93,6 @@ library
     , servant-auth-server
     , servant-docs
     , servant-server
-    , stripe-client
     , text
     , time
     , typed-uuid

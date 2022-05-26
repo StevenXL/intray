@@ -8,11 +8,10 @@ let
 
   generateOpenAPIClient = import (sources.openapi-code-generator + "/nix/generate-client.nix") { pkgs = final; };
   generatedStripe = generateOpenAPIClient {
-    name = "stripe-client";
+    name = "intray-stripe-client";
     configFile = ../stripe-client-gen.yaml;
     src = sources.stripe-spec + "/openapi/spec3.yaml";
   };
-  generatedStripeCode = generatedStripe.code;
 
 in
 {
@@ -69,6 +68,7 @@ in
       "intray-client" = intrayPkg "intray-client";
       "intray-data" = intrayPkg "intray-data";
       "intray-data-gen" = intrayPkg "intray-data-gen";
+      "intray-stripe-client" = generatedStripe.package;
       "intray-server" = intrayPkgWithOwnComp "intray-server";
       "intray-server-gen" = intrayPkg "intray-server-gen";
       "intray-web-server" =
@@ -161,7 +161,7 @@ in
 
   intrayNotification = import ./notification.nix { pkgs = final; };
 
-  inherit generatedStripeCode;
+  generatedIntrayStripeCode = generatedStripe.code;
 
   haskellPackages =
     previous.haskellPackages.override (
@@ -174,7 +174,6 @@ in
                 yesod-static-remote = dontCheck (self.callCabal2nix "yesod-static-remote" sources.yesod-static-remote { });
                 envparse = self.callHackage "envparse" "0.4.1" { };
                 yesod-autoreload = self.callCabal2nix "yesod-autoreload" sources.yesod-autoreload { };
-                stripe-client = generatedStripe.package;
               } // final.intrayPackages
           );
       }

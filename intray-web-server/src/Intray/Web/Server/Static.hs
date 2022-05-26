@@ -16,8 +16,7 @@ import Yesod.EmbeddedStatic.Remote
 mkEmbeddedStatic
   development
   "myStatic"
-  [ embedFile "static/intray.apk",
-    embedFile "static/gtd_flowchart.jpg",
+  [ embedFile "static/gtd_flowchart.jpg",
     embedFile "static/tom-sydney-kerckhove_ideas.svg",
     embedFile "static/tom-sydney-kerckhove_thinking.svg",
     embedFile "static/tom-sydney-kerckhove_flowchart-gtd.svg",
