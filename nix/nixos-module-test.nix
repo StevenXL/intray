@@ -55,7 +55,7 @@ pkgs.nixosTest (
             imports = [
               ./home-manager-module.nix
             ];
-            home.stateVersion = "20.09";
+            xdg.enable = true;
             programs.intray = {
               enable = true;
               inherit intrayReleasePackages;
@@ -97,7 +97,8 @@ pkgs.nixosTest (
           return f"su - {user} -c {quote(cmd)}"
 
 
-      client.succeed(su("testuser", "cat ~/.config/intray/config.yaml"))
+      out = client.succeed(su("testuser", "cat ~/.config/intray/config.yaml"))
+      print(out)
 
       # client.succeed(su("testuser", "intray register"))
       # client.succeed(su("testuser", "intray login"))

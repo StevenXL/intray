@@ -53,8 +53,8 @@ in
                     url = mkOption {
                       type = types.str;
                       default = "https://api.intray.eu";
-                      description =
-                        "The sync server to use for syncing";
+                      example = "https://api.intray.eu";
+                      description = "The sync server to use for syncing";
                     };
                   };
                 }
@@ -76,11 +76,11 @@ in
       commonConfig = mergeListRecursively [
         (nullOrOption "cache-dir" cfg.cache-dir)
         (nullOrOption "data-dir" cfg.data-dir)
+        cfg.config
       ];
       intrayConfig = mergeListRecursively [
         syncConfig
         commonConfig
-        cfg.config
       ];
       intrayConfigFile = toYamlFile "intray-config" intrayConfig;
       cli = cfg.intrayReleasePackages.intray-cli;
