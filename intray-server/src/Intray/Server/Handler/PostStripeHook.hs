@@ -5,9 +5,9 @@ module Intray.Server.Handler.PostStripeHook (servePostStripeHook) where
 import Control.Monad.Logger
 import Data.Aeson as JSON
 import Data.Aeson.Encode.Pretty as JSON
+import qualified Data.Aeson.KeyMap as KM
 import Data.Aeson.Types as JSON
 import qualified Data.ByteString.Lazy as LB
-import qualified Data.HashMap.Strict as HM
 import Data.Maybe
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
@@ -45,7 +45,7 @@ servePostStripeHook value = do
 fullfillSubscription :: Stripe.Subscription -> IntrayHandler ()
 fullfillSubscription subscription = do
   -- We don't want to do anything with subscriptions for other products.
-  case HM.lookup "product" $ subscriptionMetadata subscription of
+  case KM.lookup "product" $ subscriptionMetadata subscription of
     Nothing -> logInfoNS "stripe-hook" "Not fulfilling subscription without product."
     Just "intray" -> do
       logInfoNS "stripe-hook" $ T.pack $ unlines ["fulfilling subscription:", ppShow subscription]
@@ -61,7 +61,10 @@ fullfillSubscription subscription = do
         Just (Entity _ sc) -> pure $ stripeCustomerUser sc
 
       -- If the subscription has ended, use that date instead.
-      let endtime = fromMaybe (subscriptionCurrentPeriodEnd subscription) (subscriptionEndedAt subscription)
+      let endtime = case subscriptionEndedAt subscription of
+            Just (NonNull end) -> end
+            _ -> subscriptionCurrentPeriodEnd subscription
+
       let end = posixSecondsToUTCTime $ fromIntegral endtime
       void $
         runDB $

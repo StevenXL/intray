@@ -5,6 +5,8 @@ $doctype 5
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>#{pageTitle pc}
+    $maybe description <- pageDescription pc
+      <meta name="description" content="#{description}">
 
     <!-- Google search console -->
     $maybe searchConsoleId <- appVerification app

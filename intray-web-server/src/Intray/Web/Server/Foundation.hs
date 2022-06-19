@@ -128,7 +128,7 @@ intrayAuthPlugin = AuthPlugin intrayAuthPluginName dispatch loginWidget
       token <- genToken
       msgs <- getMessages
       setTitle "Intray Login"
-      setDescription "Intray Registration: This is where you sign into your intray account."
+      setDescriptionIdemp "Intray Registration: This is where you sign into your intray account."
       $(widgetFile "auth/login")
 
 data LoginData = LoginData
@@ -169,7 +169,7 @@ getNewAccountR = do
     defaultLayout $
       do
         setTitle "Intray Registration"
-        setDescription "Intray Registration: This is where you sign up for an intray account."
+        setDescriptionIdemp "Intray Registration: This is where you sign up for an intray account."
         $(widgetFile "auth/register")
 
 data NewAccount = NewAccount

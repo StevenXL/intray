@@ -1,0 +1,22 @@
+{
+    "cancel_url": "http://intray.example.com/stripe/success",
+    "client_reference_id": "username",
+    "customer": "customer-id",
+    "metadata": {
+        "intray-server-version": "0.0.0.0",
+        "product": "intray"
+    },
+    "mode": "subscription",
+    "subscription_data": {
+        "items": [
+            {
+                "plan": "plan-id"
+            }
+        ],
+        "metadata": {
+            "intray-server-version": "0.0.0.0",
+            "product": "intray"
+        }
+    },
+    "success_url": "http://intray.example.com/stripe/cancel"
+}

@@ -16,5 +16,5 @@ getHomeR = do
   mPricing <- runClientOrErr clientGetPricing
   withNavBar $ do
     setTitle "Intray"
-    setDescription "A GTD In-box system"
+    setDescriptionIdemp "A GTD In-box system"
     $(widgetFile "home")

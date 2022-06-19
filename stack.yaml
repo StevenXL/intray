@@ -1,4 +1,4 @@
-snapshot: lts-18.16
+snapshot: lts-19.6
 packages:
 - intray-api
 - intray-api-gen
@@ -25,17 +25,19 @@ extra-deps:
 
 - github: NorfairKing/yesod-static-remote
   commit: ed6bf8ef434d49b160429028613a1f6882fccfdf
+
 - github: NorfairKing/mergeless
-  commit: 639cdca0dc7cce53a62cf40aa856b156e2ab1f32
+  commit: 77fc3d9a66ec4573156116591dbf9e87d61ba3dd
   subdirs:
     - mergeless
     - genvalidity-mergeless
     - mergeless-persistent
 
 - github: NorfairKing/sydtest
-  commit: e55fad0f6b8058a9b44c6c0d66bdd3c3be556d71
+  commit: cf1bb414f0c0ce7bbf64659da94b8cd890c9e536
   subdirs:
     - sydtest
+    - sydtest-aeson
     - sydtest-discover
     - sydtest-persistent
     - sydtest-persistent-sqlite
@@ -44,7 +46,7 @@ extra-deps:
     - sydtest-yesod
 
 - github: NorfairKing/validity
-  commit: 466bb2f140e62cae0d4fe3770681c3d74e99cf40
+  commit: d88be911a7e2a84f6c089e9269aaed8d10a74acd
   subdirs:
   - genvalidity
   - genvalidity-aeson
@@ -91,15 +93,18 @@ extra-deps:
   subdirs:
     - typed-uuid
     - genvalidity-typed-uuid
+
 - github: NorfairKing/pretty-relative-time
   commit: a634358ff274380a12360f7814c3aea46ea35b1b
+
 - github: NorfairKing/safe-coloured-text
-  commit: f30fe0e4d2a0fa036967ffe17538b60e5f9861f5
+  commit: d1a727998fa58ecf38022906b552d33e57e3f308
   subdirs:
     - safe-coloured-text
     - safe-coloured-text-terminfo
+
 - github: NorfairKing/autodocodec
-  commit: 9880ec062f1166bdac50b8eb59c6dd010bc9af0c
+  commit: a60fbd4db121c0529f9ceb68c58c289daa693db2
   subdirs:
     - autodocodec
     - autodocodec-schema
