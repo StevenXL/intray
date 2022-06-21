@@ -7,8 +7,6 @@ let
 
   mergeListRecursively = pkgs.callPackage ./merge-lists-recursively.nix { };
 
-  toYamlFile = pkgs.callPackage ./to-yaml.nix { };
-
 in
 {
   options =
@@ -82,7 +80,7 @@ in
         syncConfig
         commonConfig
       ];
-      intrayConfigFile = toYamlFile "intray-config" intrayConfig;
+      intrayConfigFile = (pkgs.formats.yaml { }).generate "intray-config.yaml" intrayConfig;
       cli = cfg.intrayReleasePackages.intray-cli;
 
       syncIntrayName = "sync-intray";

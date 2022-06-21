@@ -10,8 +10,6 @@ let
   cfg = config.services.intray."${envname}";
 
   mergeListRecursively = pkgs.callPackage ./merge-lists-recursively.nix { };
-
-  toYamlFile = pkgs.callPackage ./to-yaml.nix { };
 in
 {
   options.services.intray."${envname}" =
@@ -155,7 +153,7 @@ in
         (attrOrNull "monetisation" monetisation)
         cfg.api-server.config
       ];
-      api-server-config-file = toYamlFile "intray-api-server-config" api-server-config;
+      api-server-config-file = (pkgs.formats.yaml { }).generate "intray-api-server-config.yaml" api-server-config;
       api-server-service = optionalAttrs (cfg.api-server.enable or false) {
         "intray-api-server-${envname}" = {
           description = "Intray ${envname} api server service";
@@ -200,7 +198,7 @@ in
         (attrOrNull "verification" verification-tag)
         cfg.web-server.config
       ];
-      web-server-config-file = toYamlFile "intray-web-server-config" web-server-config;
+      web-server-config-file = (pkgs.formats.yaml { }).generate "intray-web-server-config.yaml" web-server-config;
       web-server-service = optionalAttrs (cfg.web-server.enable or false) {
         "intray-web-server-${envname}" = {
           description = "Intray ${envname} web server service";
