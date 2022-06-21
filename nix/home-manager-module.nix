@@ -86,23 +86,19 @@ in
       cli = cfg.intrayReleasePackages.intray-cli;
 
       syncIntrayName = "sync-intray";
-      syncIntrayService =
-        {
-          Unit =
-            {
-              Description = "Sync intray items";
-              Wants = [ "network-online.target" ];
-            };
-          Service =
-            {
-              ExecStart =
-                "${pkgs.writeShellScript "intray-sync" ''
-                  ${cli}/bin/intray login
-                  ${cli}/bin/intray sync
-                ''}";
-              Type = "oneshot";
-            };
+      syncIntrayService = {
+        Unit = {
+          Description = "Sync intray items";
+          Wants = [ "network-online.target" ];
         };
+        Service = {
+          ExecStart = "${pkgs.writeShellScript "intray-sync" ''
+              ${cli}/bin/intray login
+              ${cli}/bin/intray sync
+            ''}";
+          Type = "oneshot";
+        };
+      };
 
       syncIntrayTimer =
         {
