@@ -12,7 +12,6 @@ import Autodocodec.Yaml
 import Control.Arrow
 import Control.Monad.Logger
 import qualified Data.Text as T
-import qualified Data.Text.Encoding as TE
 import qualified Env
 import Import
 import Intray.Web.Server.OptParse.Types
@@ -59,18 +58,13 @@ environmentParser :: Env.Parser Env.Error Environment
 environmentParser =
   Env.prefixed "INTRAY_WEB_SERVER_" $
     Environment
-      <$> Env.var (fmap Just . Env.str) "CONFIG_FILE" (mE "Config file")
-      <*> Env.var (fmap Just . Env.auto) "PORT" (mE "port to run the web server on")
-      <*> Env.var (fmap Just . Env.auto) "LOG_LEVEL" (mE "minimal severity for log messages")
-      <*> Env.var (fmap Just . left (Env.UnreadError . show) . parseBaseUrl) "API_URL" (mE "base url for the api server to call")
-      <*> Env.var (fmap Just . Env.str) "ANALYTICS_TRACKING_ID" (mE "google analytics tracking id")
-      <*> Env.var
-        (fmap Just . Env.str)
-        "SEARCH_CONSOLE_VERIFICATION"
-        (mE "google search console verification id")
-      <*> Env.var (fmap Just . Env.str) "LOGIN_CACHE_FILE" (mE "google search console verification id")
-  where
-    mE h = Env.def Nothing <> Env.keep <> Env.help h
+      <$> optional (Env.var Env.str "CONFIG_FILE" (Env.help "Config file"))
+      <*> optional (Env.var Env.auto "PORT" (Env.help "port to run the web server on"))
+      <*> optional (Env.var Env.auto "LOG_LEVEL" (Env.help "minimal severity for log messages"))
+      <*> optional (Env.var (left (Env.UnreadError . show) . parseBaseUrl) "API_URL" (Env.help "base url for the api server to call"))
+      <*> optional (Env.var Env.str "ANALYTICS_TRACKING_ID" (Env.help "google analytics tracking id"))
+      <*> optional (Env.var Env.str "SEARCH_CONSOLE_VERIFICATION" (Env.help "google search console verification id"))
+      <*> optional (Env.var Env.str "LOGIN_CACHE_FILE" (Env.help "google search console verification id"))
 
 getFlags :: IO Flags
 getFlags = do
@@ -91,7 +85,7 @@ flagsParser = info (helper <*> parseFlags) (fullDesc <> footerDoc (Just $ OptPar
         [ Env.helpDoc environmentParser,
           "",
           "Configuration file format:",
-          T.unpack (TE.decodeUtf8 (renderColouredSchemaViaCodec @Configuration))
+          T.unpack (renderColouredSchemaViaCodec @Configuration)
         ]
 
 parseFlags :: Parser Flags

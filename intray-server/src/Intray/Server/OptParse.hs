@@ -11,7 +11,6 @@ where
 import Autodocodec.Yaml
 import Control.Monad.Logger
 import qualified Data.Text as T
-import qualified Data.Text.Encoding as TE
 import Database.Persist.Sqlite
 import qualified Env
 import Import
@@ -100,19 +99,18 @@ getEnvironment = Env.parse id environmentParser
 environmentParser :: Env.Parser Env.Error Environment
 environmentParser =
   Env.prefixed "INTRAY_SERVER_" $
-    Environment <$> Env.var (fmap Just . Env.str) "CONFIG_FILE" (mE "Config file")
-      <*> Env.var (fmap Just . Env.str) "HOST" (mE "host to run the api server on")
-      <*> Env.var (fmap Just . Env.auto) "PORT" (mE "port to run the api server on")
-      <*> Env.var (fmap Just . Env.str) "DATABASE" (mE "database file")
-      <*> Env.var (fmap Just . Env.auto) "LOG_LEVEL" (mE "minimal severity of log messages")
-      <*> Env.var (fmap Just . Env.str) "SIGNING_KEY_FILE" (mE "the file to store the signing key in")
-      <*> Env.var (fmap Just . Env.str) "STRIPE_PLAN" (mE "stripe plan id for subscriptions")
-      <*> Env.var (fmap Just . Env.str) "STRIPE_SECRET_KEY" (mE "stripe secret key")
-      <*> Env.var (fmap Just . Env.str) "STRIPE_PUBLISHABLE_KEY" (mE "stripe publishable key")
-      <*> Env.var (fmap Just . Env.auto) "MAX_ITEMS_FREE" (mE "maximum items that a free user can have")
-      <*> Env.var (fmap Just . Env.str) "PRICE" (mE "A text description of the plan price")
-  where
-    mE h = Env.def Nothing <> Env.keep <> Env.help h
+    Environment
+      <$> optional (Env.var Env.str "CONFIG_FILE" (Env.help "Config file"))
+      <*> optional (Env.var Env.str "HOST" (Env.help "host to run the api server on"))
+      <*> optional (Env.var Env.auto "PORT" (Env.help "port to run the api server on"))
+      <*> optional (Env.var Env.str "DATABASE" (Env.help "database file"))
+      <*> optional (Env.var Env.auto "LOG_LEVEL" (Env.help "minimal severity of log messages"))
+      <*> optional (Env.var Env.str "SIGNING_KEY_FILE" (Env.help "the file to store the signing key in"))
+      <*> optional (Env.var Env.str "STRIPE_PLAN" (Env.help "stripe plan id for subscriptions"))
+      <*> optional (Env.var Env.str "STRIPE_SECRET_KEY" (Env.help "stripe secret key"))
+      <*> optional (Env.var Env.str "STRIPE_PUBLISHABLE_KEY" (Env.help "stripe publishable key"))
+      <*> optional (Env.var Env.auto "MAX_ITEMS_FREE" (Env.help "maximum items that a free user can have"))
+      <*> optional (Env.var Env.str "PRICE" (Env.help "A text description of the plan price"))
 
 getFlags :: IO Flags
 getFlags = do
@@ -137,7 +135,7 @@ flagsParser = info (helper <*> parseFlags) (fullDesc <> footerDoc (Just $ OptPar
         [ Env.helpDoc environmentParser,
           "",
           "Configuration file format:",
-          T.unpack (TE.decodeUtf8 (renderColouredSchemaViaCodec @Configuration))
+          T.unpack (renderColouredSchemaViaCodec @Configuration)
         ]
 
 parseFlags :: Parser Flags

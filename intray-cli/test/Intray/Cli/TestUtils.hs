@@ -1,12 +1,10 @@
-module Intray.Cli.TestUtils
-  ( intray,
-  )
-where
+module Intray.Cli.TestUtils (intrayWithEnv) where
 
 import Intray.Cli (intrayCli)
 import TestImport
 
-intray :: [String] -> IO ()
-intray args = do
+intrayWithEnv :: [(String, String)] -> [String] -> IO ()
+intrayWithEnv envVars args = do
+  mapM_ (uncurry setEnv) envVars
   putStrLn $ unwords $ "RUNNING:" : "intray" : args
-  withArgs args intrayCli -- Not threadsafe
+  withArgs args intrayCli

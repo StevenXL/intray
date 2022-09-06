@@ -16,25 +16,21 @@ packages:
 ghc-options:
   "$locals": -Wall -Wincomplete-uni-patterns -Wincomplete-record-updates -Wpartial-fields -Widentities -Wredundant-constraints -Wcpp-undef
   intray-stripe-client: -w # Turn off warnings for the generated code.
-
-
-
 extra-deps:
-- envparse-0.4.1@sha256:989902e6368532548f61de1fa245ad2b39176cddd8743b20071af519a709ce30,2842
 - servant-flatten-0.2@sha256:276896f7c5cdec5b8f8493f6205fded0cc602d050b58fdb09a6d7c85c3bb0837,1234
 
 - github: NorfairKing/yesod-static-remote
-  commit: ed6bf8ef434d49b160429028613a1f6882fccfdf
+  commit: 7eda644dc369e16c3591847f6c7cad30846bf6b0
 
 - github: NorfairKing/mergeless
-  commit: 77fc3d9a66ec4573156116591dbf9e87d61ba3dd
+  commit: b6bfcca1ae17e5ac662c6aa9128ed0b293b1f9c8
   subdirs:
     - mergeless
     - genvalidity-mergeless
     - mergeless-persistent
 
 - github: NorfairKing/sydtest
-  commit: cf1bb414f0c0ce7bbf64659da94b8cd890c9e536
+  commit: ff224861ea409a9ee08576adb0438bbbb948917f
   subdirs:
     - sydtest
     - sydtest-aeson
@@ -46,7 +42,7 @@ extra-deps:
     - sydtest-yesod
 
 - github: NorfairKing/validity
-  commit: d88be911a7e2a84f6c089e9269aaed8d10a74acd
+  commit: 2e9198bdaaa8c80a5dbe2b7b860b5c26558c6374
   subdirs:
   - genvalidity
   - genvalidity-aeson
@@ -98,20 +94,20 @@ extra-deps:
   commit: a634358ff274380a12360f7814c3aea46ea35b1b
 
 - github: NorfairKing/safe-coloured-text
-  commit: d1a727998fa58ecf38022906b552d33e57e3f308
+  commit: 675cb01fce5f46718416d7746de5b856ed90a63f
   subdirs:
     - safe-coloured-text
     - safe-coloured-text-terminfo
 
 - github: NorfairKing/autodocodec
-  commit: a60fbd4db121c0529f9ceb68c58c289daa693db2
+  commit: e337d681109cac273f5b9ea2b54b174bce79d312
   subdirs:
     - autodocodec
     - autodocodec-schema
     - autodocodec-yaml
 
 - github: NorfairKing/yesod-autoreload
-  commit: 7135e864c0d4a48efeae473ee2761f5168946e58
+  commit: 796def9af50cd7b053c9fb4a065c55603d4a8399
 
 nix:
   shell-file: shell.nix

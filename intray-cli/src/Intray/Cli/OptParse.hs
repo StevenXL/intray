@@ -22,7 +22,6 @@ where
 
 import Autodocodec.Yaml
 import qualified Data.Text as T
-import qualified Data.Text.Encoding as TE
 import qualified Env
 import Import
 import Intray.Cli.OptParse.Types
@@ -129,16 +128,15 @@ getEnvironment = Env.parse (Env.header "Environment") environmentParser
 environmentParser :: Env.Parser Env.Error Environment
 environmentParser =
   Env.prefixed "INTRAY_" $
-    Environment <$> Env.var (fmap Just . Env.str) "CONFIG_FILE" (mE <> Env.help "Config file")
-      <*> Env.var (fmap Just . Env.str) "URL" (mE <> Env.help "sync server url")
-      <*> Env.var (fmap Just . Env.str) "USERNAME" (mE <> Env.help "Sync username")
-      <*> Env.var (fmap Just . Env.str) "PASSWORD" (mE <> Env.help "Sync password")
-      <*> Env.var (fmap Just . Env.str) "CACHE_DIR" (mE <> Env.help "cache directory")
-      <*> Env.var (fmap Just . Env.str) "DATA_DIR" (mE <> Env.help "data directory")
-      <*> Env.var (fmap Just . Env.auto) "SYNC_STRATEGY" (mE <> Env.help "Sync strategy")
-      <*> Env.var (fmap (Just . AutoOpenWith) . Env.str) "AUTO_OPEN" (mE <> Env.help "The command to auto-open links and pictures")
-  where
-    mE = Env.def Nothing <> Env.keep
+    Environment
+      <$> optional (Env.var Env.str "CONFIG_FILE" (Env.help "Config file"))
+      <*> optional (Env.var Env.str "URL" (Env.help "sync server url"))
+      <*> optional (Env.var Env.str "USERNAME" (Env.help "Sync username"))
+      <*> optional (Env.var Env.str "PASSWORD" (Env.help "Sync password"))
+      <*> optional (Env.var Env.str "CACHE_DIR" (Env.help "cache directory"))
+      <*> optional (Env.var Env.str "DATA_DIR" (Env.help "data directory"))
+      <*> optional (Env.var Env.auto "SYNC_STRATEGY" (Env.help "Sync strategy"))
+      <*> optional (Env.var (fmap AutoOpenWith . Env.str) "AUTO_OPEN" (Env.help "The command to auto-open links and pictures"))
 
 getArguments :: IO Arguments
 getArguments = do
@@ -160,7 +158,7 @@ argParser = info (helper <*> parseArgs) (fullDesc <> footerDoc (Just $ OptParse.
         [ Env.helpDoc environmentParser,
           "",
           "Configuration file format:",
-          T.unpack (TE.decodeUtf8 (renderColouredSchemaViaCodec @Configuration))
+          T.unpack (renderColouredSchemaViaCodec @Configuration)
         ]
 
 parseArgs :: Parser Arguments

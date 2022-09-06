@@ -58,7 +58,7 @@ newtype AccessKeyEnv = AccessKeyEnv
 
 instance IsAuth IntrayAccessKey AuthCookie where
   type AuthArgs IntrayAccessKey = '[AccessKeyEnv]
-  runAuth _ _ = \AccessKeyEnv {..} -> AuthCheck $ \req ->
+  runAuth _ _ AccessKeyEnv {..} = AuthCheck $ \req ->
     case (,) <$> lookup "Username" (requestHeaders req) <*> lookup "Access-Key" (requestHeaders req) of
       Nothing -> pure Indefinite
       Just (unbs, akbs) ->

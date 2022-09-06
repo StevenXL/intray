@@ -22,11 +22,15 @@ spec = sequential $
       withSystemTempDir "intray-cli-test-cache" $ \cacheDir ->
         withSystemTempDir "intray-cli-test-data" $ \dataDir -> do
           let burl = baseUrl cenv
-          setEnv "INTRAY_USERNAME" "testuser"
-          setEnv "INTRAY_PASSWORD" "testpassword"
-          setEnv "INTRAY_URL" $ showBaseUrl burl
-          setEnv "INTRAY_CACHE_DIR" $ fromAbsDir cacheDir
-          setEnv "INTRAY_DATA_DIR" $ fromAbsDir dataDir
+          let envVars =
+                [ ("INTRAY_USERNAME", "testuser"),
+                  ("INTRAY_PASSWORD", "testpassword"),
+                  ("INTRAY_URL", showBaseUrl burl),
+                  ("INTRAY_CACHE_DIR", fromAbsDir cacheDir),
+                  ("INTRAY_DATA_DIR", fromAbsDir dataDir)
+                ]
+
+          let intray = intrayWithEnv envVars
           intray ["register"]
           intray ["login"]
           let additions = 6

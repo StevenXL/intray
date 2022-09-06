@@ -14,12 +14,15 @@ spec = sequential $
       it "Going through the usual manual steps 'just works'" $ \cenv ->
         withSystemTempDir "intray-cli-test-cache" $ \cacheDir ->
           withSystemTempDir "intray-cli-test-data" $ \dataDir -> do
-            setEnv "INTRAY_USERNAME" "testuser"
-            setEnv "INTRAY_PASSWORD" "testpassword"
-            setEnv "INTRAY_URL" $ showBaseUrl $ baseUrl cenv
-            setEnv "INTRAY_CACHE_DIR" $ fromAbsDir cacheDir
-            setEnv "INTRAY_DATA_DIR" $ fromAbsDir dataDir
-            setEnv "INTRAY_AUTO_OPEN" "true"
+            let envVars =
+                  [ ("INTRAY_USERNAME", "testuser"),
+                    ("INTRAY_PASSWORD", "testpassword"),
+                    ("INTRAY_URL", showBaseUrl $ baseUrl cenv),
+                    ("INTRAY_CACHE_DIR", fromAbsDir cacheDir),
+                    ("INTRAY_DATA_DIR", fromAbsDir dataDir),
+                    ("INTRAY_AUTO_OPEN", "true")
+                  ]
+            let intray = intrayWithEnv envVars
             intray ["register"]
             intray ["login"]
             intray ["add", "hello", "world"]
@@ -32,12 +35,15 @@ spec = sequential $
         forAllValid $ \relDataDir ->
           withSystemTempDir "intray-cli-test-cache" $ \cacheDir ->
             withSystemTempDir "intray-cli-test-data" $ \dataDir -> do
-              setEnv "INTRAY_USERNAME" "testuser"
-              setEnv "INTRAY_PASSWORD" "testpassword"
-              setEnv "INTRAY_URL" $ showBaseUrl $ baseUrl cenv
-              setEnv "INTRAY_CACHE_DIR" $ fromAbsDir cacheDir
-              setEnv "INTRAY_DATA_DIR" $ fromAbsDir $ dataDir </> relDataDir
-              setEnv "INTRAY_AUTO_OPEN" "true"
+              let envVars =
+                    [ ("INTRAY_USERNAME", "testuser"),
+                      ("INTRAY_PASSWORD", "testpassword"),
+                      ("INTRAY_URL", showBaseUrl $ baseUrl cenv),
+                      ("INTRAY_CACHE_DIR", fromAbsDir cacheDir),
+                      ("INTRAY_DATA_DIR", fromAbsDir $ dataDir </> relDataDir),
+                      ("INTRAY_AUTO_OPEN", "true")
+                    ]
+              let intray = intrayWithEnv envVars
               intray ["register"]
               intray ["login"]
               intray ["add", "hello", "world"]
@@ -50,12 +56,15 @@ spec = sequential $
         forAllValid $ \relCacheDir ->
           withSystemTempDir "intray-cli-test-cache" $ \cacheDir ->
             withSystemTempDir "intray-cli-test-data" $ \dataDir -> do
-              setEnv "INTRAY_USERNAME" "testuser"
-              setEnv "INTRAY_PASSWORD" "testpassword"
-              setEnv "INTRAY_URL" $ showBaseUrl $ baseUrl cenv
-              setEnv "INTRAY_CACHE_DIR" $ fromAbsDir $ cacheDir </> relCacheDir
-              setEnv "INTRAY_DATA_DIR" $ fromAbsDir dataDir
-              setEnv "INTRAY_AUTO_OPEN" "true"
+              let envVars =
+                    [ ("INTRAY_USERNAME", "testuser"),
+                      ("INTRAY_PASSWORD", "testpassword"),
+                      ("INTRAY_URL", showBaseUrl $ baseUrl cenv),
+                      ("INTRAY_CACHE_DIR", fromAbsDir $ cacheDir </> relCacheDir),
+                      ("INTRAY_DATA_DIR", fromAbsDir dataDir),
+                      ("INTRAY_AUTO_OPEN", "true")
+                    ]
+              let intray = intrayWithEnv envVars
               intray ["register"]
               intray ["login"]
               intray ["add", "hello", "world"]

@@ -23,13 +23,16 @@ spec = sequential $ do
         withValidNewUserAndData cenv $ \un pw _ ->
           withSystemTempDir "intray-cli-test-data" $ \dataDir ->
             withSystemTempDir "intray-cli-test-cache" $ \cacheDir -> do
-              setEnv "INTRAY_USERNAME" $ T.unpack $ usernameText un
-              setEnv "INTRAY_PASSWORD" $ T.unpack pw
-              setEnv "INTRAY_URL" $ showBaseUrl $ baseUrl cenv
-              setEnv "INTRAY_CACHE_DIR" $ fromAbsDir cacheDir
-              setEnv "INTRAY_DATA_DIR" $ fromAbsDir dataDir
-              setEnv "INTRAY_AUTO_OPEN" "true"
+              let envVars =
+                    [ ("INTRAY_USERNAME", T.unpack $ usernameText un),
+                      ("INTRAY_PASSWORD", T.unpack pw),
+                      ("INTRAY_URL", showBaseUrl $ baseUrl cenv),
+                      ("INTRAY_CACHE_DIR", fromAbsDir cacheDir),
+                      ("INTRAY_DATA_DIR", fromAbsDir dataDir),
+                      ("INTRAY_AUTO_OPEN", "true")
+                    ]
 
+              let intray = intrayWithEnv envVars
               intray ["login"]
               let sets =
                     Settings
@@ -59,13 +62,16 @@ spec = sequential $ do
       withValidNewUserAndData cenv $ \un pw _ ->
         withSystemTempDir "intray-cli-test-data" $ \dataDir ->
           withSystemTempDir "intray-cli-test-cache" $ \cacheDir -> do
-            setEnv "INTRAY_USERNAME" $ T.unpack $ usernameText un
-            setEnv "INTRAY_PASSWORD" $ T.unpack pw
-            setEnv "INTRAY_URL" $ showBaseUrl $ baseUrl cenv
-            setEnv "INTRAY_CACHE_DIR" $ fromAbsDir cacheDir
-            setEnv "INTRAY_DATA_DIR" $ fromAbsDir dataDir
-            setEnv "INTRAY_SYNC_STRATEGY" "AlwaysSync"
-            setEnv "INTRAY_AUTO_OPEN" "true"
+            let envVars =
+                  [ ("INTRAY_USERNAME", T.unpack $ usernameText un),
+                    ("INTRAY_PASSWORD", T.unpack pw),
+                    ("INTRAY_URL", showBaseUrl $ baseUrl cenv),
+                    ("INTRAY_CACHE_DIR", fromAbsDir cacheDir),
+                    ("INTRAY_DATA_DIR", fromAbsDir dataDir),
+                    ("INTRAY_SYNC_STRATEGY", "AlwaysSync"),
+                    ("INTRAY_AUTO_OPEN", "true")
+                  ]
+            let intray = intrayWithEnv envVars
             intray ["login"]
             let sets =
                   Settings
