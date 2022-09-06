@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
@@ -11,7 +12,6 @@ where
 
 import Data.Aeson as JSON
 import Data.Aeson.Encode.Pretty as JSON
-import qualified Data.Aeson.KeyMap as KM
 import qualified Data.ByteString.Lazy as LB
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
@@ -112,7 +112,6 @@ mkPostCustomersRequestBodyForUser username =
 
 metadata :: JSON.Object
 metadata =
-  KM.fromList
-    [ ("product", "intray"),
-      ("intray-server-version", toJSON $ showVersion version)
-    ]
+  [ ("product", "intray"),
+    ("intray-server-version", toJSON $ showVersion version)
+  ]

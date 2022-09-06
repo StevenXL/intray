@@ -5,7 +5,6 @@ module Intray.Server.Handler.PostStripeHook (servePostStripeHook) where
 import Control.Monad.Logger
 import Data.Aeson as JSON
 import Data.Aeson.Encode.Pretty as JSON
-import qualified Data.Aeson.KeyMap as KM
 import Data.Aeson.Types as JSON
 import qualified Data.ByteString.Lazy as LB
 import Data.Maybe
@@ -45,7 +44,7 @@ servePostStripeHook value = do
 fullfillSubscription :: Stripe.Subscription -> IntrayHandler ()
 fullfillSubscription subscription = do
   -- We don't want to do anything with subscriptions for other products.
-  case KM.lookup "product" $ subscriptionMetadata subscription of
+  case JSON.parseMaybe (JSON..: "product") (subscriptionMetadata subscription) :: Maybe Text of
     Nothing -> logInfoNS "stripe-hook" "Not fulfilling subscription without product."
     Just "intray" -> do
       logInfoNS "stripe-hook" $ T.pack $ unlines ["fulfilling subscription:", ppShow subscription]
