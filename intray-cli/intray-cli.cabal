@@ -24,6 +24,7 @@ library
       Intray.Cli.Commands.Show
       Intray.Cli.Commands.Size
       Intray.Cli.Commands.Sync
+      Intray.Cli.DB
       Intray.Cli.JSON
       Intray.Cli.OptParse
       Intray.Cli.OptParse.Types
@@ -55,11 +56,13 @@ library
     , intray-client
     , intray-data
     , mergeless
+    , mergeless-persistent
     , mtl >=2.2
     , network-uri
     , optparse-applicative >=0.13
     , path >=0.4
     , path-io >=1.2
+    , persistent
     , pretty-relative-time
     , servant >=0.9
     , servant-auth-client >=0.2
