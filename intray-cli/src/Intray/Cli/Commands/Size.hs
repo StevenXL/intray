@@ -1,7 +1,4 @@
-module Intray.Cli.Commands.Size
-  ( size,
-  )
-where
+module Intray.Cli.Commands.Size (size) where
 
 import Import
 import Intray.Cli.OptParse

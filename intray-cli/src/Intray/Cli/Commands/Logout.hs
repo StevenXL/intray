@@ -1,7 +1,4 @@
-module Intray.Cli.Commands.Logout
-  ( logout,
-  )
-where
+module Intray.Cli.Commands.Logout (logout) where
 
 import Import
 import Intray.Cli.OptParse

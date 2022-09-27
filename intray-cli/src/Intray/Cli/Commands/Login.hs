@@ -4,10 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Intray.Cli.Commands.Login
-  ( login,
-  )
-where
+module Intray.Cli.Commands.Login (login) where
 
 import qualified Data.Text as T
 import Data.Text.Encoding (encodeUtf8)

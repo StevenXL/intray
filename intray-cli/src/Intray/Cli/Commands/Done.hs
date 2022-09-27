@@ -1,7 +1,4 @@
-module Intray.Cli.Commands.Done
-  ( doneItem,
-  )
-where
+module Intray.Cli.Commands.Done (doneItem) where
 
 import Import
 import Intray.Cli.OptParse

@@ -2,10 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Intray.Cli.Commands.Add
-  ( addItem,
-  )
-where
+module Intray.Cli.Commands.Add (addItem) where
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as T

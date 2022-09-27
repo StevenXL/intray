@@ -1,9 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Intray.Cli.Commands.Sync
-  ( sync,
-  )
-where
+module Intray.Cli.Commands.Sync (sync) where
 
 import Import
 import Intray.Cli.Client

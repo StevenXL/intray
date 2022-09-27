@@ -3,10 +3,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Intray.Cli.Commands.Register
-  ( register,
-  )
-where
+module Intray.Cli.Commands.Register (register) where
 
 import Import
 import Intray.API

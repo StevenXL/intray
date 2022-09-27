@@ -3,10 +3,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Intray.Cli.Commands.Show
-  ( showItem,
-  )
-where
+module Intray.Cli.Commands.Show (showItem) where
 
 import Data.Time
 import Import
