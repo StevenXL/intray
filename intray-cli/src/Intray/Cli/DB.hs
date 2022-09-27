@@ -30,8 +30,7 @@ ClientItem
     contents ByteString
     created UTCTime
 
-    -- Server identifier
-    identifier ItemUUID Maybe
+    serverIdentifier ItemUUID Maybe
 
     deriving Show
     deriving Eq

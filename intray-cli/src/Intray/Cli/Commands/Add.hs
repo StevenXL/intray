@@ -4,38 +4,63 @@
 
 module Intray.Cli.Commands.Add (addItem) where
 
+import Control.Monad.Logger
 import qualified Data.Text as T
+import qualified Data.Text.Encoding as TE
 import qualified Data.Text.IO as T
 import Data.Time
+import qualified Database.Persist.Sql as DB
+import Database.Persist.Sqlite
 import Import
 import Intray.API
 import Intray.Cli.Client
+import Intray.Cli.DB
 import Intray.Cli.OptParse
+import Intray.Cli.Path
 import Intray.Cli.Session
-import Intray.Cli.Store
-import Intray.Cli.Sync
 import Intray.Client
 
 addItem :: AddSettings -> CliM ()
-addItem AddSettings {..} = do
-  now <- liftIO getCurrentTime
-  mItemContents <-
-    case (addSetReadStdin, addSetContents) of
-      (False, []) -> pure Nothing
-      (True, []) -> Just <$> liftIO T.getContents
-      (False, cts) -> pure $ Just $ T.unwords cts
-      (True, cts) ->
-        Just <$> do
-          cts' <- liftIO T.getContents
-          pure $ T.intercalate "\n" [T.unwords cts, cts']
+addItem addSettings@AddSettings {..} = do
+  mItemContents <- liftIO $ getItemContents addSettings
   forM_ mItemContents $ \contents -> do
-    let ti = textTypedItem contents
-    let modStore :: CS -> CS
-        modStore = addItemToClientStore AddedItem {addedItemContents = ti, addedItemCreated = now}
     if addSetRemote
-      then withToken $ \token -> do
-        mr <- runSingleClientOrErr $ clientPostAddItem token ti
-        case mr of
-          Nothing -> liftIO $ die "Not logged in."
-          Just _ -> pure ()
-      else modifyClientStoreAndSync modStore
+      then addItemRemotely contents
+      else addItemLocally contents
+
+getItemContents :: AddSettings -> IO (Maybe Text)
+getItemContents AddSettings {..} =
+  case (addSetReadStdin, addSetContents) of
+    (False, []) -> pure Nothing
+    (True, []) -> Just <$> liftIO T.getContents
+    (False, cts) -> pure $ Just $ T.unwords cts
+    (True, cts) ->
+      Just <$> do
+        cts' <- liftIO T.getContents
+        pure $ T.intercalate "\n" [T.unwords cts, cts']
+
+addItemRemotely :: Text -> CliM ()
+addItemRemotely contents = do
+  let ti = textTypedItem contents
+  withToken $ \token -> do
+    mr <- runSingleClientOrErr $ clientPostAddItem token ti
+    case mr of
+      Nothing -> liftIO $ die "Not logged in."
+      Just _ -> pure ()
+
+addItemLocally :: Text -> CliM ()
+addItemLocally contents = do
+  dbFile <- getDBPath
+  runNoLoggingT $
+    withSqlitePoolInfo (mkSqliteConnectionInfo $ T.pack $ fromAbsFile dbFile) 1 $ \pool ->
+      flip runSqlPool pool $ do
+        _ <- runMigrationQuiet clientAutoMigration
+        now <- liftIO getCurrentTime
+        let ci =
+              ClientItem
+                { clientItemType = TextItem,
+                  clientItemContents = TE.encodeUtf8 contents,
+                  clientItemCreated = now,
+                  clientItemServerIdentifier = Nothing
+                }
+        DB.insert_ ci
