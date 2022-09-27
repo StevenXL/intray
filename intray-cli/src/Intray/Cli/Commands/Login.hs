@@ -19,15 +19,12 @@ import Web.Cookie (parseSetCookie, setCookieName)
 
 login :: LoginSettings -> CliM ()
 login LoginSettings {..} = do
-  sets <- ask
-  mRes <-
-    runSingleClientOrErr $ do
-      loginForm <-
-        liftIO $
-          runReaderT
-            (LoginForm <$> promptUsername loginSetUsername <*> promptPassword loginSetPassword)
-            sets
-      clientPostLogin loginForm
+  loginForm <-
+    LoginForm
+      <$> promptUsername loginSetUsername
+      <*> promptPassword loginSetPassword
+
+  mRes <- runSingleClientOrErr $ clientPostLogin loginForm
   case mRes of
     Nothing -> liftIO $ die "No server configured."
     Just (Headers NoContent (HCons sessionHeader HNil)) ->

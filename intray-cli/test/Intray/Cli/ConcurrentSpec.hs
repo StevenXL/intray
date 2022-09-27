@@ -6,6 +6,7 @@ module Intray.Cli.ConcurrentSpec
 where
 
 import Control.Concurrent.Async
+import Control.Monad.Logger
 import Control.Monad.Reader
 import qualified Data.Text as T
 import Intray.Cli.Commands.Add
@@ -34,6 +35,7 @@ spec = sequential $
           intray ["register"]
           intray ["login"]
           let additions = 6
+          dontLog <- runNoLoggingT askLoggerIO
           forConcurrently_ [1 .. additions] $ \i ->
             -- We cannot use 'intray' here because that uses 'withArgs' which is not threadsafe and causes segfaults
             do
@@ -45,13 +47,14 @@ spec = sequential $
                         setSyncStrategy = AlwaysSync,
                         setAutoOpen = DontAutoOpen
                       }
-              flip runReaderT sets $
-                addItem
-                  AddSettings
-                    { addSetContents = ["hello", "world", T.pack (show i)],
-                      addSetReadStdin = False,
-                      addSetRemote = False
-                    }
+              flip runLoggingT dontLog $
+                flip runReaderT sets $
+                  addItem
+                    AddSettings
+                      { addSetContents = ["hello", "world", T.pack (show i)],
+                        addSetReadStdin = False,
+                        addSetRemote = False
+                      }
           let sets =
                 Settings
                   { setBaseUrl = Just burl,
@@ -60,5 +63,5 @@ spec = sequential $
                     setSyncStrategy = NeverSync,
                     setAutoOpen = DontAutoOpen
                   }
-          s <- runReaderT readClientStoreSize sets
+          s <- flip runLoggingT dontLog $ runReaderT readClientStoreSize sets
           s `shouldBe` additions

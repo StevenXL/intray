@@ -42,7 +42,8 @@ spec = sequential $ do
                         setSyncStrategy = NeverSync,
                         setAutoOpen = DontAutoOpen
                       }
-              mToken <- runReaderT loadToken sets
+              dontLog <- runNoLoggingT askLoggerIO
+              mToken <- runLoggingT (runReaderT loadToken sets) dontLog
               token <-
                 case mToken of
                   Nothing -> expectationFailure "Should have a token after logging in"
@@ -50,11 +51,11 @@ spec = sequential $ do
               uuid <- runClientOrError cenv $ clientPostAddItem token ti
               intray ["sync"]
               intray ["show"]
-              mLastSeen1 <- runReaderT readLastSeen sets
+              mLastSeen1 <- runLoggingT (runReaderT readLastSeen sets) dontLog
               mLastSeen1 `shouldSatisfy` isJust
               NoContent <- runClientOrError cenv $ clientDeleteItem token uuid
               intray ["sync"]
-              mLastSeen2 <- runReaderT readLastSeen sets
+              mLastSeen2 <- runLoggingT (runReaderT readLastSeen sets) dontLog
               mLastSeen2 `shouldSatisfy` isNothing
   let maxFree = 2
   withPaidIntrayServer maxFree $
@@ -73,6 +74,7 @@ spec = sequential $ do
                   ]
             let intray = intrayWithEnv envVars
             intray ["login"]
+            dontLog <- runNoLoggingT askLoggerIO
             let sets =
                   Settings
                     { setBaseUrl = Just $ baseUrl cenv,
@@ -81,7 +83,7 @@ spec = sequential $ do
                       setSyncStrategy = AlwaysSync,
                       setAutoOpen = DontAutoOpen
                     }
-            let size = runReaderT readClientStoreSize sets
+            let size = runLoggingT (runReaderT readClientStoreSize sets) dontLog
             size `shouldReturn` 0
             intray ["add", "one"]
             size `shouldReturn` 1

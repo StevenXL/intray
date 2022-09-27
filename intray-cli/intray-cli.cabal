@@ -31,6 +31,7 @@ library
       Intray.Cli.Path
       Intray.Cli.Prompt
       Intray.Cli.Session
+      Intray.Cli.Sqlite
       Intray.Cli.Store
       Intray.Cli.Sync
   other-modules:
@@ -121,6 +122,7 @@ test-suite intray-cli-test
     , intray-data
     , intray-server-gen
     , mergeless
+    , monad-logger
     , mtl
     , path
     , path-io

@@ -9,6 +9,7 @@ module Intray.Cli.OptParse.Types where
 
 import Autodocodec
 import Control.Applicative
+import Control.Monad.Logger
 import Data.Yaml (FromJSON, ToJSON)
 import Import
 import Intray.Data
@@ -193,4 +194,4 @@ data AddSettings = AddSettings
   }
   deriving (Show, Eq, Generic)
 
-type CliM = ReaderT Settings IO
+type CliM = ReaderT Settings (LoggingT IO)

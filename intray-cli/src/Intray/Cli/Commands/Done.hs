@@ -5,7 +5,7 @@ import Intray.Cli.OptParse
 import Intray.Cli.Store
 import Intray.Cli.Sync
 
-doneItem :: ReaderT Settings IO ()
+doneItem :: CliM ()
 doneItem = do
   mii <- readLastSeen
   case mii of

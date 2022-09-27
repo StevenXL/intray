@@ -4,6 +4,7 @@ module Intray.Cli
   )
 where
 
+import Control.Monad.Logger
 import Import
 import Intray.Cli.Commands
 import Intray.Cli.OptParse
@@ -11,7 +12,7 @@ import Intray.Cli.OptParse
 intrayCli :: IO ()
 intrayCli = do
   Instructions disp sett <- getInstructions
-  runReaderT (dispatch disp) sett
+  runStderrLoggingT $ runReaderT (dispatch disp) sett
 
 dispatch :: Dispatch -> CliM ()
 dispatch d =

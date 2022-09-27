@@ -4,6 +4,7 @@ module TestImport
 where
 
 import Control.Monad as X
+import Control.Monad.Logger as X
 import Control.Monad.Reader as X
 import Data.ByteString as X (ByteString)
 import Data.Either as X

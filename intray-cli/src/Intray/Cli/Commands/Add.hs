@@ -4,20 +4,18 @@
 
 module Intray.Cli.Commands.Add (addItem) where
 
-import Control.Monad.Logger
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import qualified Data.Text.IO as T
 import Data.Time
 import qualified Database.Persist.Sql as DB
-import Database.Persist.Sqlite
 import Import
 import Intray.API
 import Intray.Cli.Client
 import Intray.Cli.DB
 import Intray.Cli.OptParse
-import Intray.Cli.Path
 import Intray.Cli.Session
+import Intray.Cli.Sqlite
 import Intray.Client
 
 addItem :: AddSettings -> CliM ()
@@ -49,18 +47,13 @@ addItemRemotely contents = do
       Just _ -> pure ()
 
 addItemLocally :: Text -> CliM ()
-addItemLocally contents = do
-  dbFile <- getDBPath
-  runNoLoggingT $
-    withSqlitePoolInfo (mkSqliteConnectionInfo $ T.pack $ fromAbsFile dbFile) 1 $ \pool ->
-      flip runSqlPool pool $ do
-        _ <- runMigrationQuiet clientAutoMigration
-        now <- liftIO getCurrentTime
-        let ci =
-              ClientItem
-                { clientItemType = TextItem,
-                  clientItemContents = TE.encodeUtf8 contents,
-                  clientItemCreated = now,
-                  clientItemServerIdentifier = Nothing
-                }
-        DB.insert_ ci
+addItemLocally contents = withDB $ do
+  now <- liftIO getCurrentTime
+  let ci =
+        ClientItem
+          { clientItemType = TextItem,
+            clientItemContents = TE.encodeUtf8 contents,
+            clientItemCreated = now,
+            clientItemServerIdentifier = Nothing
+          }
+  DB.insert_ ci

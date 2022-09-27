@@ -83,6 +83,7 @@ tests:
     - intray-data
     - intray-server-gen
     - mergeless
+    - monad-logger
     - mtl
     - path
     - path-io
