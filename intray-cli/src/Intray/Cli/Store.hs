@@ -13,9 +13,6 @@ module Intray.Cli.Store
     addItemToClientStore,
     storeSize,
     anyUnsynced,
-    LastItem (..),
-    lastItemInClientStore,
-    doneLastItem,
     writeLastSeen,
     readLastSeen,
     clearLastSeen,
@@ -23,14 +20,16 @@ module Intray.Cli.Store
   )
 where
 
-import Data.Aeson
 import qualified Data.ByteString as SB
 import qualified Data.Map as M
 import Data.Mergeless
 import qualified Data.Text as T
 import Data.Time
+import Database.Persist
+import Database.Persist.Sql
 import Import
 import Intray.API
+import Intray.Cli.DB
 import Intray.Cli.JSON
 import Intray.Cli.OptParse
 import Intray.Cli.Path
@@ -84,37 +83,12 @@ readClientStoreSize = storeSize <$> readClientStoreOrEmpty
 
 writeClientStore :: CS -> CliM ()
 writeClientStore s = do
-  checkLastSeenAfter s
   storePath >>= (`writeJSON` s)
 
 anyUnsynced :: CS -> Bool
 anyUnsynced = not . M.null . clientStoreAdded
 
-checkLastSeenAfter :: CS -> CliM ()
-checkLastSeenAfter s = do
-  mLs <- readLastSeen
-  case mLs of
-    Nothing -> pure () -- Nothing was last seen, cannot be out of date
-    Just ls -> unless (lastSeenInClientStore ls s) clearLastSeen
-
-lastSeenInClientStore :: LastItem -> CS -> Bool
-lastSeenInClientStore li ClientStore {..} =
-  case li of
-    LastItemUnsynced ci a1 ->
-      M.member ci clientStoreAdded
-        || elem a1 clientStoreSynced -- An unsynced item could have gotten synced.
-    LastItemSynced uuid _ -> M.member uuid clientStoreSynced
-
-data LastItem
-  = LastItemSynced ItemUUID (AddedItem TypedItem)
-  | LastItemUnsynced ClientId (AddedItem TypedItem)
-  deriving (Show, Eq, Ord, Generic)
-
-instance FromJSON LastItem
-
-instance ToJSON LastItem
-
-readLastSeen :: CliM (Maybe LastItem)
+readLastSeen :: CliM (Maybe ClientItemId)
 readLastSeen = do
   p <- lastSeenItemPath
   readJSON p $
@@ -123,7 +97,7 @@ readLastSeen = do
         "You can just remove this file and everything else will work as intended: " <> fromAbsFile p
       ]
 
-writeLastSeen :: LastItem -> CliM ()
+writeLastSeen :: ClientId -> CliM ()
 writeLastSeen i = do
   p <- lastSeenItemPath
   writeJSON p i
@@ -133,40 +107,13 @@ clearLastSeen = do
   p <- lastSeenItemPath
   liftIO $ ignoringAbsence $ removeFile p
 
-lastItemInClientStore :: CS -> Maybe LastItem
-lastItemInClientStore ClientStore {..} =
-  let lasts =
-        concat
-          [ map (uncurry LastItemUnsynced) (M.toList clientStoreAdded),
-            map (uncurry LastItemSynced) (M.toList clientStoreSynced)
-          ]
-   in case lasts of
-        [] -> Nothing
-        (li : _) -> Just li
-
-doneLastItem :: LastItem -> CS -> CS
-doneLastItem li cs =
-  case li of
-    LastItemUnsynced ci _ -> deleteUnsyncedFromClientStore ci cs
-    LastItemSynced u _ -> deleteSyncedFromClientStore u cs
-
-prettyShowItemAndWait :: UTCTime -> LastItem -> CliM ()
-prettyShowItemAndWait now li =
-  let idString =
-        case li of
-          LastItemUnsynced ci _ -> show (unClientId ci)
-          LastItemSynced i _ -> uuidString i
-      lastItemTimestamp =
-        case li of
-          LastItemUnsynced _ a -> addedItemCreated a
-          LastItemSynced _ s -> addedItemCreated s
-      lastItemData =
-        case li of
-          LastItemUnsynced _ a -> addedItemContents a
-          LastItemSynced _ a -> addedItemContents a
-      timeStr = prettyTimestamp now lastItemTimestamp
-      timeAgoString = prettyTimeAuto now lastItemTimestamp
-   in case typedItemCase lastItemData of
+prettyShowItemAndWait :: UTCTime -> Entity ClientItem -> CliM ()
+prettyShowItemAndWait now (Entity cid ClientItem {..}) =
+  let idString = show (fromSqlKey cid)
+      timeStr = prettyTimestamp now clientItemCreated
+      timeAgoString = prettyTimeAuto now clientItemCreated
+      typedItem = TypedItem clientItemType clientItemContents
+   in case typedItemCase typedItem of
         Left err -> liftIO $ putStrLn $ unlines ["Invalid item:", err]
         Right i -> do
           (contents, mp) <-

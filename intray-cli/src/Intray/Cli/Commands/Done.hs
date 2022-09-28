@@ -1,15 +1,12 @@
 module Intray.Cli.Commands.Done (doneItem) where
 
+import Database.Persist as DB
 import Import
+import Intray.Cli.DB
 import Intray.Cli.OptParse
-import Intray.Cli.Store
-import Intray.Cli.Sync
+import Intray.Cli.Sqlite
 
 doneItem :: CliM ()
-doneItem = do
-  mii <- readLastSeen
-  case mii of
-    Nothing -> liftIO $ die "Are you sure?, it doesn't look like you showed an item yet."
-    Just li -> do
-      modifyClientStoreAndSync $ doneLastItem li
-      clearLastSeen
+doneItem = withDB $ do
+  mClientItemId <- fmap entityKey <$> selectFirst [] [Asc ClientItemId]
+  forM_ mClientItemId DB.delete
