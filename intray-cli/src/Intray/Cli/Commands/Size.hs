@@ -1,11 +1,12 @@
 module Intray.Cli.Commands.Size (size) where
 
+import Database.Persist
 import Import
+import Intray.Cli.DB
 import Intray.Cli.OptParse
-import Intray.Cli.Store
-import Intray.Cli.Sync
+import Intray.Cli.Sqlite
 
 size :: CliM ()
-size = do
-  s <- syncAndReturn storeSize
-  liftIO $ print (s :: Int)
+size = withDB $ do
+  c <- count ([] :: [Filter ClientItem])
+  liftIO $ print c
