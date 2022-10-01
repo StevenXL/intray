@@ -25,7 +25,6 @@ library
       Intray.Cli.Commands.Size
       Intray.Cli.Commands.Sync
       Intray.Cli.DB
-      Intray.Cli.JSON
       Intray.Cli.OptParse
       Intray.Cli.OptParse.Types
       Intray.Cli.Path

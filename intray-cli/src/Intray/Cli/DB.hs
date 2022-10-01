@@ -17,6 +17,7 @@ module Intray.Cli.DB where
 import Data.Time
 import Database.Persist.Sql
 import Database.Persist.TH
+import Intray.API
 import Intray.Data.Import
 import Intray.Data.ItemType
 import Intray.Data.ItemUUID
@@ -31,6 +32,7 @@ ClientItem
     created UTCTime
 
     serverIdentifier ItemUUID Maybe
+    deleted Bool
 
     deriving Show
     deriving Eq
@@ -38,3 +40,9 @@ ClientItem
 |]
 
 instance Validity ClientItem
+
+toAddedItem :: ClientItem -> AddedItem TypedItem
+toAddedItem = undefined
+
+fromAddedItem :: AddedItem TypedItem -> Entity ClientItem
+fromAddedItem = undefined

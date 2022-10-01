@@ -33,22 +33,49 @@ data IntrayProtectedItemSite route = IntrayProtectedItemSite
   deriving (Generic)
 
 -- | The item is not guaranteed to be the same one for every call if there are multiple items available.
-type GetShowItem = ProtectAPI :> "show-item" :> Get '[JSON] (Maybe (ItemInfo TypedItem))
+type GetShowItem =
+  ProtectAPI
+    :> "show-item"
+    :> Get '[JSON] (Maybe (ItemInfo TypedItem))
 
 -- | Show the number of items in the intray
-type GetIntraySize = ProtectAPI :> "size" :> Get '[JSON] Int
+type GetIntraySize =
+  ProtectAPI
+    :> "size"
+    :> Get '[JSON] Int
 
 -- | The order of the items is not guaranteed to be the same for every call.
-type GetItemUUIDs = ProtectAPI :> "uuids" :> Get '[JSON] [ItemUUID]
+type GetItemUUIDs =
+  ProtectAPI
+    :> "uuids"
+    :> Get '[JSON] [ItemUUID]
 
 -- | The order of the items is not guaranteed to be the same for every call.
-type GetItems = ProtectAPI :> "items" :> Get '[JSON] [ItemInfo TypedItem]
+type GetItems =
+  ProtectAPI
+    :> "items"
+    :> Get '[JSON] [ItemInfo TypedItem]
 
-type PostAddItem = ProtectAPI :> "item" :> ReqBody '[JSON] TypedItem :> Post '[JSON] ItemUUID
+type PostAddItem =
+  ProtectAPI
+    :> "item"
+    :> ReqBody '[JSON] TypedItem
+    :> Post '[JSON] ItemUUID
 
-type GetItem = ProtectAPI :> "item" :> Capture "uuid" ItemUUID :> Get '[JSON] (ItemInfo TypedItem)
+type GetItem =
+  ProtectAPI
+    :> "item"
+    :> Capture "uuid" ItemUUID
+    :> Get '[JSON] (ItemInfo TypedItem)
 
-type DeleteItem = ProtectAPI :> "item" :> Capture "uuid" ItemUUID :> Delete '[JSON] NoContent
+type DeleteItem =
+  ProtectAPI
+    :> "item"
+    :> Capture "uuid" ItemUUID
+    :> Delete '[JSON] NoContent
 
 type PostSync =
-  ProtectAPI :> "sync" :> ReqBody '[JSON] (SyncRequest ClientId ItemUUID (AddedItem TypedItem)) :> Post '[JSON] (SyncResponse ClientId ItemUUID (AddedItem TypedItem))
+  ProtectAPI
+    :> "sync"
+    :> ReqBody '[JSON] (SyncRequest ClientId ItemUUID (AddedItem TypedItem))
+    :> Post '[JSON] (SyncResponse ClientId ItemUUID (AddedItem TypedItem))

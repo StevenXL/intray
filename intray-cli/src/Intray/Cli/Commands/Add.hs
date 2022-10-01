@@ -54,6 +54,7 @@ addItemLocally contents = withDB $ do
           { clientItemType = TextItem,
             clientItemContents = TE.encodeUtf8 contents,
             clientItemCreated = now,
-            clientItemServerIdentifier = Nothing
+            clientItemServerIdentifier = Nothing,
+            clientItemDeleted = False
           }
   DB.insert_ ci
