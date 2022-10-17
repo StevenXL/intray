@@ -1,10 +1,7 @@
 module Intray.Cli.Commands.Logout (logout) where
 
-import Import
-import Intray.Cli.OptParse
-import Intray.Cli.Path
+import Intray.Cli.Env
+import Intray.Cli.Session
 
 logout :: CliM ()
-logout = do
-  p <- sessionPath
-  liftIO $ ignoringAbsence $ removeFile p
+logout = clearSession

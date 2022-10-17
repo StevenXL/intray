@@ -16,7 +16,6 @@ module Intray.Cli.OptParse
     RegisterSettings (..),
     LoginSettings (..),
     AddSettings (..),
-    CliM,
   )
 where
 

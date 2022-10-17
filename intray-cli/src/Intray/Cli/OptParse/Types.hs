@@ -193,5 +193,3 @@ data AddSettings = AddSettings
     addSetRemote :: Bool
   }
   deriving (Show, Eq, Generic)
-
-type CliM = ReaderT Settings (LoggingT IO)

@@ -11,6 +11,7 @@ import Data.Text.Encoding (encodeUtf8)
 import Import
 import Intray.API
 import Intray.Cli.Client
+import Intray.Cli.Env
 import Intray.Cli.OptParse
 import Intray.Cli.Prompt
 import Intray.Cli.Session

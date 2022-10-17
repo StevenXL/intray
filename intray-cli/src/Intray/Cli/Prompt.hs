@@ -10,6 +10,7 @@ where
 import Control.Exception
 import qualified Data.Text.IO as T
 import Import
+import Intray.Cli.Env
 import Intray.Cli.OptParse
 import Intray.Data
 import System.IO

@@ -16,6 +16,7 @@ import Database.Persist.Sql
 import Import
 import Intray.API
 import Intray.Cli.DB
+import Intray.Cli.Env
 import Intray.Cli.OptParse
 import Intray.Cli.Path
 import Network.URI
@@ -47,7 +48,7 @@ prettyShowItemAndWait now (Entity cid ClientItem {..}) =
                       case it of
                         JpgImage -> ".jpg"
                         PngImage -> ".png"
-                cacheDir <- asks setCacheDir
+                cacheDir <- asks envCacheDir
                 let fileName = idString ++ ext
                 file <- resolveFile cacheDir fileName
                 liftIO $ SB.writeFile (fromAbsFile file) bs
@@ -60,7 +61,7 @@ prettyShowItemAndWait now (Entity cid ClientItem {..}) =
 
 getAutoOpenConfig :: String -> CliM (Maybe (ProcessConfig () () ()))
 getAutoOpenConfig arg = do
-  aa <- asks setAutoOpen
+  aa <- asks envAutoOpen
   pure $ case aa of
     DontAutoOpen -> Nothing
     AutoOpenWith cmd -> Just (autoOpenConfig cmd arg)

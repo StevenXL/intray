@@ -37,6 +37,17 @@ ClientItem
     deriving Show
     deriving Eq
     deriving Generic
+
+
+ShownItem
+    item ClientItemId
+
+    UniqueShownItem item -- This means there can only be 0 or 1
+
+    deriving Show
+    deriving Eq
+    deriving Generic
+
 |]
 
 instance Validity ClientItem

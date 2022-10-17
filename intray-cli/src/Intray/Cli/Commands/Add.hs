@@ -13,9 +13,11 @@ import Import
 import Intray.API
 import Intray.Cli.Client
 import Intray.Cli.DB
+import Intray.Cli.Env
 import Intray.Cli.OptParse
 import Intray.Cli.Session
 import Intray.Cli.Sqlite
+import Intray.Cli.Sync
 import Intray.Client
 
 addItem :: AddSettings -> CliM ()
@@ -24,7 +26,9 @@ addItem addSettings@AddSettings {..} = do
   forM_ mItemContents $ \contents -> do
     if addSetRemote
       then addItemRemotely contents
-      else addItemLocally contents
+      else do
+        addItemLocally contents
+        autoSyncStore
 
 getItemContents :: AddSettings -> IO (Maybe Text)
 getItemContents AddSettings {..} =
@@ -47,7 +51,7 @@ addItemRemotely contents = do
       Just _ -> pure ()
 
 addItemLocally :: Text -> CliM ()
-addItemLocally contents = withDB $ do
+addItemLocally contents = runDB $ do
   now <- liftIO getCurrentTime
   let ci =
         ClientItem

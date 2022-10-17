@@ -1,6 +1,7 @@
 module Intray.Cli.Session
   ( withToken,
     loadToken,
+    clearSession,
     loadSession,
     saveSession,
   )
@@ -10,6 +11,7 @@ import qualified Data.ByteString as SB
 import qualified Data.ByteString.Builder as SBB
 import qualified Data.ByteString.Lazy as LB
 import Import
+import Intray.Cli.Env
 import Intray.Cli.OptParse
 import Intray.Cli.Path
 import Servant.Auth.Client
@@ -26,6 +28,11 @@ loadToken :: CliM (Maybe Token)
 loadToken = do
   mCookie <- loadSession
   pure $ Token . setCookieValue <$> mCookie
+
+clearSession :: CliM ()
+clearSession = do
+  p <- sessionPath
+  liftIO $ ignoringAbsence $ removeFile p
 
 loadSession :: CliM (Maybe SetCookie)
 loadSession = do

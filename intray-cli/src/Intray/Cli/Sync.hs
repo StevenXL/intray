@@ -1,32 +1,43 @@
 module Intray.Cli.Sync
-  ( syncStore,
+  ( autoSyncStore,
+    anyUnsyncedWarning,
   )
 where
 
-import Data.Mergeless.Persistent
+import Control.Monad.Logger
+import qualified Data.Text as T
 import Database.Persist
 import Database.Persist.Sql
 import Import
 import Intray.Cli.Client
 import Intray.Cli.DB
+import Intray.Cli.Env
 import Intray.Cli.OptParse
 import Intray.Cli.Session
+import Intray.Cli.Sqlite
 import Intray.Cli.Store
-import Intray.Client
+import Intray.Client (clientPostSync)
 
-syncStore :: SqlPersistT CliM ()
-syncStore = do
-  syncRequest <- clientMakeSyncRequestQuery toAddedItem ClientItemServerIdentifier ClientItemDeleted
-  liftIO $ print syncRequest
+autoSyncStore :: CliM ()
+autoSyncStore = do
+  syncStrategy <- asks envSyncStrategy
+  case syncStrategy of
+    NeverSync -> pure ()
+    AlwaysSync -> do
+      withToken $ \token -> do
+        syncRequest <- makeSyncRequest
+        mSyncResponse <- runSingleClientOrErr (clientPostSync token (undefined syncRequest))
+        forM_ mSyncResponse $ \syncResponse -> mergeSyncResponse (undefined syncResponse)
+      runDB anyUnsyncedWarning
 
-anyUnsyncedWarning :: SqlPersistT CliM ()
+anyUnsyncedWarning :: (MonadIO m, MonadLogger m) => SqlPersistT m ()
 anyUnsyncedWarning = do
   mUnsynced <- selectFirst [ClientItemServerIdentifier ==. Nothing] []
   case mUnsynced of
     Nothing -> pure ()
     Just _ ->
-      liftIO $
-        putStrLn $
+      logWarnN $
+        T.pack $
           unlines
             [ "Not all added items were synchronized in the most recent synchronisation.",
               "This may have occurred if you have not subscribed with your sync server.",

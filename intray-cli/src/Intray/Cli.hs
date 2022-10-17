@@ -1,18 +1,34 @@
-module Intray.Cli
-  ( intrayCli,
-    dispatch,
-  )
-where
+{-# LANGUAGE RecordWildCards #-}
+
+module Intray.Cli (intrayCli) where
 
 import Control.Monad.Logger
+import qualified Data.Text as T
 import Import
 import Intray.Cli.Commands
+import Intray.Cli.Env
 import Intray.Cli.OptParse
+import System.FileLock
 
 intrayCli :: IO ()
 intrayCli = do
-  Instructions disp sett <- getInstructions
-  runStderrLoggingT $ runReaderT (dispatch disp) sett
+  Instructions disp Settings {..} <- getInstructions
+
+  dbPath <- resolveFile setDataDir "intray.sqlite3"
+  dbLockPath <- resolveFile setDataDir "intray.sqlite3.lock"
+
+  withFileLock dbLockPath Exclusive $ \_ -> do
+    withSqlitePoolInfo (mkSqliteConnectionInfo $ T.pack $ fromAbsFile dbFile) 1 $ \pool ->
+      flip runSqlPool pool $ do
+        _ <- runMigrationQuiet clientAutoMigration
+        func
+
+    let mBurl = setBaseUrl set
+    mClientEnv <- forM mBurl $ \burl -> do
+      man <- newManager tlsManagerSettings
+      pure $ mkClientEnv man burl
+
+    runReaderT (dispatch disp) env
 
 dispatch :: Dispatch -> CliM ()
 dispatch d =
