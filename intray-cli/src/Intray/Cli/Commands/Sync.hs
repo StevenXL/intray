@@ -23,11 +23,11 @@ sync = do
     Nothing -> logErrorN "No server configured."
     Just clientEnv -> withToken $ \token -> do
       syncRequest <- makeSyncRequest
-      errOrSyncResponse <- liftIO $ runClientM (clientPostSync token (undefined syncRequest)) clientEnv
+      errOrSyncResponse <- liftIO $ runClientM (clientPostSync token syncRequest) clientEnv
       case errOrSyncResponse of
         Left err -> logErrorN $ T.pack $ unlines ["Failed to sync:", show err]
         Right syncResponse -> do
-          mergeSyncResponse (undefined syncResponse)
+          mergeSyncResponse syncResponse
           logInfoN $ T.pack $ showSyncStats syncResponse
           runDB anyUnsyncedWarning
 

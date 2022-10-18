@@ -8,6 +8,7 @@
 module Intray.API.Protected.Item
   ( module Intray.API.Protected.Item,
     module Intray.API.Protected.Item.Types,
+    ClientItemId,
   )
 where
 
@@ -15,6 +16,7 @@ import Data.Mergeless
 import Import
 import Intray.API.Protected.Item.Types
 import Intray.API.Types
+import Intray.Cli.DB (ClientItemId)
 import Servant.API
 import Servant.API.Generic
 
@@ -77,5 +79,5 @@ type DeleteItem =
 type PostSync =
   ProtectAPI
     :> "sync"
-    :> ReqBody '[JSON] (SyncRequest ClientId ItemUUID (AddedItem TypedItem))
-    :> Post '[JSON] (SyncResponse ClientId ItemUUID (AddedItem TypedItem))
+    :> ReqBody '[JSON] (SyncRequest ClientItemId ItemUUID (AddedItem TypedItem))
+    :> Post '[JSON] (SyncResponse ClientItemId ItemUUID (AddedItem TypedItem))

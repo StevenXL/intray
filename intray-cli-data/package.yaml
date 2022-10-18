@@ -18,8 +18,6 @@ library:
   - filelock
   - http-client >=0.5
   - http-client-tls >=0.3
-  - intray-api
-  - intray-client
   - intray-data
   - mergeless
   - mergeless-persistent

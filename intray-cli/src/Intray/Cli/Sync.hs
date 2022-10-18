@@ -26,8 +26,8 @@ autoSyncStore = do
     AlwaysSync -> do
       withToken $ \token -> do
         syncRequest <- makeSyncRequest
-        mSyncResponse <- runSingleClientOrErr (clientPostSync token (undefined syncRequest))
-        forM_ mSyncResponse $ \syncResponse -> mergeSyncResponse (undefined syncResponse)
+        mSyncResponse <- runSingleClientOrErr (clientPostSync token syncRequest)
+        forM_ mSyncResponse $ \syncResponse -> mergeSyncResponse syncResponse
       runDB anyUnsyncedWarning
 
 anyUnsyncedWarning :: (MonadIO m, MonadLogger m) => SqlPersistT m ()

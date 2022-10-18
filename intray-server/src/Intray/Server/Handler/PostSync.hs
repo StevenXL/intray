@@ -20,8 +20,8 @@ import Intray.Server.Types
 
 servePostSync ::
   AuthCookie ->
-  SyncRequest ClientId ItemUUID (AddedItem TypedItem) ->
-  IntrayHandler (SyncResponse ClientId ItemUUID (AddedItem TypedItem))
+  SyncRequest ClientItemId ItemUUID (AddedItem TypedItem) ->
+  IntrayHandler (SyncResponse ClientItemId ItemUUID (AddedItem TypedItem))
 servePostSync AuthCookie {..} sr = do
   ps <- getUserPaidStatus authCookieUserUUID
   doSync ps authCookieUserUUID sr
@@ -29,8 +29,8 @@ servePostSync AuthCookie {..} sr = do
 doSync ::
   PaidStatus ->
   AccountUUID ->
-  SyncRequest ClientId ItemUUID (AddedItem TypedItem) ->
-  IntrayHandler (SyncResponse ClientId ItemUUID (AddedItem TypedItem))
+  SyncRequest ClientItemId ItemUUID (AddedItem TypedItem) ->
+  IntrayHandler (SyncResponse ClientItemId ItemUUID (AddedItem TypedItem))
 doSync ps userId =
   runDB
     . serverProcessSyncWithCustomIdQuery

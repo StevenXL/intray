@@ -30,8 +30,8 @@ clientGetItem :: Token -> ItemUUID -> ClientM (ItemInfo TypedItem)
 clientDeleteItem :: Token -> ItemUUID -> ClientM NoContent
 clientPostSync ::
   Token ->
-  SyncRequest ClientId ItemUUID (AddedItem TypedItem) ->
-  ClientM (SyncResponse ClientId ItemUUID (AddedItem TypedItem))
+  SyncRequest ClientItemId ItemUUID (AddedItem TypedItem) ->
+  ClientM (SyncResponse ClientItemId ItemUUID (AddedItem TypedItem))
 clientGetAccountInfo :: Token -> ClientM AccountInfo
 clientPostChangePassphrase :: Token -> ChangePassphrase -> ClientM NoContent
 clientDeleteAccount :: Token -> ClientM NoContent

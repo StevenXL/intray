@@ -14,10 +14,12 @@
 
 module Intray.Cli.DB where
 
+import Autodocodec
+import Data.Aeson (FromJSONKey (..), ToJSONKey (..))
+import Data.Functor.Contravariant
 import Data.Time
-import Database.Persist.Sql
+import Database.Persist.Sql as Sql
 import Database.Persist.TH
-import Intray.API
 import Intray.Data.Import
 import Intray.Data.ItemType
 import Intray.Data.ItemUUID
@@ -52,8 +54,11 @@ ShownItem
 
 instance Validity ClientItem
 
-toAddedItem :: ClientItem -> AddedItem TypedItem
-toAddedItem = undefined
+instance ToBackendKey SqlBackend a => HasCodec (Sql.Key a) where
+  codec = dimapCodec toSqlKey fromSqlKey codec
 
-fromAddedItem :: AddedItem TypedItem -> Entity ClientItem
-fromAddedItem = undefined
+instance (PersistEntity a, ToBackendKey SqlBackend a) => ToJSONKey (Sql.Key a) where
+  toJSONKey = contramap fromSqlKey toJSONKey
+
+instance (PersistEntity a, ToBackendKey SqlBackend a) => FromJSONKey (Sql.Key a) where
+  fromJSONKey = toSqlKey <$> fromJSONKey
