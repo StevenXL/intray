@@ -7,8 +7,11 @@ where
 
 import qualified Data.Text as T
 import Intray.API.Gen ()
+import Intray.Cli
+import Intray.Cli.Env
 import Intray.Cli.OptParse
 import Intray.Cli.Session (loadToken)
+import Intray.Cli.Sqlite
 import Intray.Cli.Store
 import Intray.Cli.TestUtils
 import Intray.Client
@@ -17,83 +20,50 @@ import TestImport
 
 spec :: Spec
 spec = sequential $ do
-  withIntrayServer $
-    it "correctly deletes the local LastSeen after a sync if the item has dissappeared remotely" $ \cenv ->
+  withIntrayServer . onlineCliMSpec $
+    it "correctly deletes the local LastSeen after a sync if the item has dissappeared remotely" $ \env ->
       forAllValid $ \ti ->
-        withValidNewUserAndData cenv $ \un pw _ ->
-          withSystemTempDir "intray-cli-test-data" $ \dataDir ->
-            withSystemTempDir "intray-cli-test-cache" $ \cacheDir -> do
-              let envVars =
-                    [ ("INTRAY_USERNAME", T.unpack $ usernameText un),
-                      ("INTRAY_PASSWORD", T.unpack pw),
-                      ("INTRAY_URL", showBaseUrl $ baseUrl cenv),
-                      ("INTRAY_CACHE_DIR", fromAbsDir cacheDir),
-                      ("INTRAY_DATA_DIR", fromAbsDir dataDir),
-                      ("INTRAY_AUTO_OPEN", "true")
-                    ]
+        case envClientEnv env of
+          Nothing -> expectationFailure "Should not happen."
+          Just cenv -> withValidNewUserAndData cenv $ \un pw _ -> testCliM env $ do
+            dispatch $ DispatchLogin LoginSettings {loginSetUsername = Just un, loginSetPassword = Just pw}
+            mToken <- loadToken
+            token <-
+              case mToken of
+                Nothing -> liftIO $ expectationFailure "Should have a token after logging in"
+                Just t -> pure t
 
-              let intray = intrayWithEnv envVars
-              intray ["login"]
-              let sets =
-                    Settings
-                      { setBaseUrl = Just $ baseUrl cenv,
-                        setCacheDir = cacheDir,
-                        setDataDir = dataDir,
-                        setSyncStrategy = NeverSync,
-                        setAutoOpen = DontAutoOpen
-                      }
-              dontLog <- runNoLoggingT askLoggerIO
-              mToken <- runLoggingT (runReaderT loadToken sets) dontLog
-              token <-
-                case mToken of
-                  Nothing -> expectationFailure "Should have a token after logging in"
-                  Just t -> pure t
-              uuid <- runClientOrError cenv $ clientPostAddItem token ti
-              intray ["sync"]
-              intray ["show"]
-              mLastSeen1 <- runLoggingT (runReaderT readLastSeen sets) dontLog
-              mLastSeen1 `shouldSatisfy` isJust
-              NoContent <- runClientOrError cenv $ clientDeleteItem token uuid
-              intray ["sync"]
-              mLastSeen2 <- runLoggingT (runReaderT readLastSeen sets) dontLog
-              mLastSeen2 `shouldSatisfy` isNothing
+            uuid <- liftIO $ runClientOrError cenv $ clientPostAddItem token ti
+            dispatch DispatchSync
+            dispatch DispatchShowItem
+            shownItemIdBefore <- getShownItem
+            liftIO $ shownItemIdBefore `shouldSatisfy` isJust
+            NoContent <- liftIO $ runClientOrError cenv $ clientDeleteItem token uuid
+            dispatch DispatchSync
+            shownItemIdAfter <- getShownItem
+            liftIO $ shownItemIdAfter `shouldSatisfy` isNothing
+
   let maxFree = 2
-  withPaidIntrayServer maxFree $
-    it "Can add items past the maximum allowed number of free items locally" $ \cenv ->
-      withValidNewUserAndData cenv $ \un pw _ ->
-        withSystemTempDir "intray-cli-test-data" $ \dataDir ->
-          withSystemTempDir "intray-cli-test-cache" $ \cacheDir -> do
-            let envVars =
-                  [ ("INTRAY_USERNAME", T.unpack $ usernameText un),
-                    ("INTRAY_PASSWORD", T.unpack pw),
-                    ("INTRAY_URL", showBaseUrl $ baseUrl cenv),
-                    ("INTRAY_CACHE_DIR", fromAbsDir cacheDir),
-                    ("INTRAY_DATA_DIR", fromAbsDir dataDir),
-                    ("INTRAY_SYNC_STRATEGY", "AlwaysSync"),
-                    ("INTRAY_AUTO_OPEN", "true")
-                  ]
-            let intray = intrayWithEnv envVars
-            intray ["login"]
-            dontLog <- runNoLoggingT askLoggerIO
-            let sets =
-                  Settings
-                    { setBaseUrl = Just $ baseUrl cenv,
-                      setCacheDir = cacheDir,
-                      setDataDir = dataDir,
-                      setSyncStrategy = AlwaysSync,
-                      setAutoOpen = DontAutoOpen
-                    }
-            let size = runLoggingT (runReaderT readClientStoreSize sets) dontLog
-            size `shouldReturn` 0
-            intray ["add", "one"]
-            size `shouldReturn` 1
-            intray ["size"]
-            size `shouldReturn` 1
-            intray ["add", "two"]
-            size `shouldReturn` 2
-            intray ["size"]
-            size `shouldReturn` 2
-            intray ["add", "three"]
-            size `shouldReturn` 3
-            intray ["size"]
-            size `shouldReturn` 3
+  withPaidIntrayServer maxFree . onlineCliMSpec $
+    it "Can add items past the maximum allowed number of free items locally" $ \env ->
+      case envClientEnv env of
+        Nothing -> expectationFailure "Should not happen."
+        Just cenv -> withValidNewUserAndData cenv $ \un pw _ -> testCliM env $ do
+          dispatch $ DispatchLogin LoginSettings {loginSetUsername = Just un, loginSetPassword = Just pw}
+          let sizeShouldBe s = do
+                s' <- getStoreSize
+                liftIO $ s' `shouldBe` s
+          let add ts = dispatch $ DispatchAddItem AddSettings {addSetContents = ts, addSetReadStdin = False, addSetRemote = False}
+          sizeShouldBe 0
+          add ["one"]
+          sizeShouldBe 1
+          dispatch DispatchSize
+          sizeShouldBe 1
+          add ["two"]
+          sizeShouldBe 2
+          dispatch DispatchSize
+          sizeShouldBe 2
+          add ["three"]
+          sizeShouldBe 3
+          dispatch DispatchSize
+          sizeShouldBe 3

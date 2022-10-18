@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Intray.Cli (intrayCli) where
+module Intray.Cli (intrayCli, dispatch) where
 
 import Control.Monad.Logger
 import qualified Data.Text as T

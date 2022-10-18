@@ -35,6 +35,20 @@ cliMSpec s = managerSpec $ do
   describe "online, without autosync" $ setupAroundWith' (\man _ -> onlineWithoutAutosyncEnvSetupFunc man) s
   describe "offline" $ setupAround offlineEnvSetupFunc s
 
+onlineCliMSpec :: CliSpec -> TestDef '[HTTP.Manager] ClientEnv
+onlineCliMSpec s = do
+  describe "online, with autosync" $
+    setupAroundWith
+      (\cenv -> (\e -> e {envClientEnv = Just cenv, envSyncStrategy = AlwaysSync}) <$> offlineEnvSetupFunc)
+      s
+  describe "online, without autosync" $
+    setupAroundWith
+      (\cenv -> (\e -> e {envClientEnv = Just cenv, envSyncStrategy = NeverSync}) <$> offlineEnvSetupFunc)
+      s
+
+offlineCliMSpec :: CliSpec -> Spec
+offlineCliMSpec = managerSpec . setupAround offlineEnvSetupFunc
+
 offlineEnvSetupFunc :: SetupFunc Env
 offlineEnvSetupFunc = do
   let envBaseUrl = Nothing
