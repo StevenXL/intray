@@ -55,7 +55,7 @@ tryToSyncStore = do
                     || S.member i (syncResponseClientDeleted syncResponse)
           when shownItemWasDeleted clearShownItem
           mergeSyncResponse syncResponse
-          logInfoN $ T.pack $ showSyncStats syncResponse
+          logInfoN $ T.pack $ "Sync succesful, stats:\n" <> showSyncStats syncResponse
           runDB anyUnsyncedWarning
 
 showSyncStats :: SyncResponse ci si a -> String

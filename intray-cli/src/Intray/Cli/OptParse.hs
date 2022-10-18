@@ -65,7 +65,7 @@ combineToInstructions (Arguments cmd Flags {..}) Environment {..} mConf =
               )
               $ flagSyncStrategy <|> envSyncStrategy <|> mc configSyncStrategy
       let setAutoOpen = fromMaybe (AutoOpenWith "xdg-open") (flagAutoOpen <|> envAutoOpen <|> mc configAutoOpen)
-      let setLogLevel = fromMaybe LevelInfo (flagLogLevel <|> envLogLevel <|> mc configLogLevel)
+      let setLogLevel = fromMaybe LevelWarn (flagLogLevel <|> envLogLevel <|> mc configLogLevel)
       pure Settings {..}
     getDispatch =
       case cmd of
