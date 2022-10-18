@@ -19,7 +19,7 @@ import Intray.Server.TestUtils
 import TestImport
 
 spec :: Spec
-spec = sequential $ do
+spec = do
   withIntrayServer . onlineCliMSpec $
     it "correctly deletes the local LastSeen after a sync if the item has dissappeared remotely" $ \env ->
       forAllValid $ \ti ->

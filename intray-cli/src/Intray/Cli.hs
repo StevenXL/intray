@@ -24,6 +24,7 @@ intrayCli = do
   dbPath <- resolveFile setDataDir "intray.sqlite3"
   dbLockPath <- resolveFile setDataDir "intray.sqlite3.lock"
 
+  ensureDir (parent dbPath)
   withFileLock (fromAbsFile dbLockPath) Exclusive $ \_ -> do
     runStderrLoggingT . filterLogger (\_ ll -> ll >= setLogLevel) $
       withSqlitePoolInfo (mkSqliteConnectionInfo $ T.pack $ fromAbsFile dbPath) 1 $ \pool -> do

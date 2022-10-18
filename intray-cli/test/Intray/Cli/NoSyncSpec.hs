@@ -14,7 +14,7 @@ import Intray.Data
 import TestImport
 
 spec :: Spec
-spec = sequential . offlineCliMSpec $ do
+spec = offlineCliMSpec $ do
   it "correctly errors when a user tries to register but has no server configured" $ \env ->
     testCliM
       env
@@ -50,15 +50,3 @@ spec = sequential . offlineCliMSpec $ do
     dispatch DispatchShowItem
     dispatch DispatchDoneItem
     dispatch DispatchSize
-
-  specify "login fails immediately if no server is configured" $ \env ->
-    testCliM
-      env
-      ( dispatch $
-          DispatchLogin
-            LoginSettings
-              { loginSetUsername = Nothing,
-                loginSetPassword = Nothing
-              }
-      )
-      `shouldThrow` (== ExitFailure 1)

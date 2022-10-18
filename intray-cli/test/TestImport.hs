@@ -13,6 +13,7 @@ import Data.List as X
 import Data.Maybe as X
 import Data.Monoid as X
 import Data.Text as X (Text)
+import Debug.Trace as X
 import GHC.Generics as X (Generic)
 import Path as X
 import Path.IO as X

@@ -20,6 +20,7 @@ import Web.Cookie (parseSetCookie, setCookieName)
 
 login :: LoginSettings -> CliM ()
 login LoginSettings {..} = do
+  liftIO $ print loginSetUsername
   loginForm <-
     LoginForm
       <$> promptUsername loginSetUsername
