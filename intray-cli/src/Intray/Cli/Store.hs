@@ -6,8 +6,6 @@ module Intray.Cli.Store
 where
 
 import qualified Data.ByteString as SB
-import qualified Data.Map as M
-import Data.Mergeless
 import qualified Data.Text as T
 import Data.Time
 import Database.Persist
@@ -17,12 +15,9 @@ import Intray.API
 import Intray.Cli.DB
 import Intray.Cli.Env
 import Intray.Cli.OptParse
-import Intray.Cli.Path
 import Network.URI
-import System.FileLock
 import System.Process.Typed
 import Text.Time.Pretty
-import UnliftIO.Exception
 
 prettyShowItemAndWait :: UTCTime -> Entity ClientItem -> CliM ()
 prettyShowItemAndWait now (Entity cid ClientItem {..}) =

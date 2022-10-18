@@ -10,6 +10,7 @@ library:
   - bytestring
   - genvalidity >=1.0
   - genvalidity-bytestring
+  - genvalidity-persistent
   - genvalidity-text
   - genvalidity-time
   - genvalidity-typed-uuid

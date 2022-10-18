@@ -5,14 +5,12 @@ module Intray.Cli.SyncSpec
   )
 where
 
-import qualified Data.Text as T
 import Intray.API.Gen ()
 import Intray.Cli
 import Intray.Cli.Env
 import Intray.Cli.OptParse
 import Intray.Cli.Session (loadToken)
 import Intray.Cli.Sqlite
-import Intray.Cli.Store
 import Intray.Cli.TestUtils
 import Intray.Client
 import Intray.Server.TestUtils

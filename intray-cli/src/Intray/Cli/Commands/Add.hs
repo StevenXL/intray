@@ -16,7 +16,6 @@ import Intray.Cli.DB
 import Intray.Cli.Env
 import Intray.Cli.OptParse
 import Intray.Cli.Session
-import Intray.Cli.Sqlite
 import Intray.Cli.Sync
 import Intray.Client
 

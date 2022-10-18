@@ -8,6 +8,7 @@ module Intray.Server.Handler.SyncSpec
 where
 
 import qualified Data.Map as M
+import Database.Persist.Sql
 import Intray.API.Gen ()
 import Intray.Client
 import Intray.Server.TestUtils
@@ -35,14 +36,19 @@ spec =
             secondStore `shouldBe` firstStore
     let maxFree = 2
     withPaidIntrayServer maxFree $
-      it "syncs at most two items if noly two items are free" $
+      it "syncs at most two items if only two items are free" $
         \cenv ->
           forAllValid $ \(i1, i2, i3) ->
             withValidNewUser cenv $ \token -> do
               let store =
-                    addItemToClientStore i3 $
-                      addItemToClientStore i2 $
-                        addItemToClientStore i1 emptyClientStore
+                    emptyClientStore
+                      { clientStoreAdded =
+                          M.fromList
+                            [ (toSqlKey 1, i1),
+                              (toSqlKey 2, i2),
+                              (toSqlKey 3, i3)
+                            ]
+                      }
               M.size (clientStoreAdded store) `shouldBe` 3
               M.size (clientStoreSynced store) `shouldBe` 0
               sr1 <- runClientOrError cenv $ clientPostSync token $ makeSyncRequest store

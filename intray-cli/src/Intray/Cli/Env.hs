@@ -3,7 +3,6 @@ module Intray.Cli.Env where
 import Control.Monad.IO.Class
 import Control.Monad.Logger
 import Control.Monad.Reader
-import Database.Persist
 import Database.Persist.Sql
 import Database.Persist.Sqlite
 import Import

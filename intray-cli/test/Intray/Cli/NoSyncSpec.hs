@@ -7,7 +7,6 @@ module Intray.Cli.NoSyncSpec
 where
 
 import Intray.Cli
-import Intray.Cli.Commands
 import Intray.Cli.OptParse
 import Intray.Cli.TestUtils
 import Intray.Data

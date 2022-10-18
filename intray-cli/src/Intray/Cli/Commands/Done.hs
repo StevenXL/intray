@@ -3,11 +3,8 @@
 module Intray.Cli.Commands.Done (doneItem) where
 
 import Control.Monad.Logger
-import Database.Persist as DB
 import Import
-import Intray.Cli.DB
 import Intray.Cli.Env
-import Intray.Cli.OptParse
 import Intray.Cli.Sqlite
 
 doneItem :: CliM ()

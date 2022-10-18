@@ -9,7 +9,6 @@ import Intray.Cli.Env
 import Intray.Cli.OptParse.Types (AutoOpen (..), SyncStrategy (..))
 import Intray.Server.TestUtils
 import qualified Network.HTTP.Client as HTTP
-import qualified Network.HTTP.Types as HTTP
 import Test.Syd
 import Test.Syd.Path
 import Test.Syd.Persistent.Sqlite
@@ -51,7 +50,6 @@ offlineCliMSpec = managerSpec . setupAround offlineEnvSetupFunc
 
 offlineEnvSetupFunc :: SetupFunc Env
 offlineEnvSetupFunc = do
-  let envBaseUrl = Nothing
   envCacheDir <- tempDirSetupFunc "intray-cli-test-cache-dir"
   envDataDir <- tempDirSetupFunc "intray-cli-test-data-dir"
   envConnectionPool <- connectionPoolSetupFunc clientAutoMigration

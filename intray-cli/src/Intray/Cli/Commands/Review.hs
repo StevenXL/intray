@@ -5,11 +5,9 @@ module Intray.Cli.Commands.Review (review) where
 import Control.Monad.Logger
 import qualified Data.Text as T
 import Data.Time
-import Database.Persist
 import Import
 import Intray.Cli.Commands.Done
 import Intray.Cli.Env
-import Intray.Cli.OptParse
 import Intray.Cli.Prompt
 import Intray.Cli.Sqlite
 import Intray.Cli.Store

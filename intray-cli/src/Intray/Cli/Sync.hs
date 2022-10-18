@@ -1,34 +1,71 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
+
 module Intray.Cli.Sync
   ( autoSyncStore,
+    tryToSyncStore,
     anyUnsyncedWarning,
   )
 where
 
 import Control.Monad.Logger
+import qualified Data.Set as S
 import qualified Data.Text as T
 import Database.Persist
 import Database.Persist.Sql
 import Import
-import Intray.Cli.Client
 import Intray.Cli.DB
 import Intray.Cli.Env
 import Intray.Cli.OptParse
 import Intray.Cli.Session
 import Intray.Cli.Sqlite
-import Intray.Cli.Store
-import Intray.Client (clientPostSync)
+import Intray.Client (ItemUUID, SyncResponse (..), clientPostSync)
+import Servant.Client
 
 autoSyncStore :: CliM ()
 autoSyncStore = do
   syncStrategy <- asks envSyncStrategy
   case syncStrategy of
     NeverSync -> pure ()
-    AlwaysSync -> do
-      withToken $ \token -> do
-        syncRequest <- makeSyncRequest
-        mSyncResponse <- runSingleClientOrErr (clientPostSync token syncRequest)
-        forM_ mSyncResponse $ \syncResponse -> mergeSyncResponse syncResponse
-      runDB anyUnsyncedWarning
+    AlwaysSync -> tryToSyncStore
+
+tryToSyncStore :: CliM ()
+tryToSyncStore = do
+  mClientEnv <- asks envClientEnv
+  case mClientEnv of
+    Nothing -> logErrorN "No server configured."
+    Just clientEnv -> withToken $ \token -> do
+      syncRequest <- makeSyncRequest
+      mShownItemUuid <- do
+        mSi <- getShownItem
+        runDB $
+          fmap (join . join) $
+            forM mSi $ fmap (fmap clientItemServerIdentifier) . get
+      errOrSyncResponse <- liftIO $ runClientM (clientPostSync token syncRequest) clientEnv
+      case errOrSyncResponse of
+        Left err -> logErrorN $ T.pack $ unlines ["Failed to sync:", show err]
+        Right syncResponse -> do
+          -- If the shown item was deleted then we have to clear it because
+          -- otherwise it will refer to a row that won't exist anymore when the
+          -- sync response is merged.
+          let shownItemWasDeleted = case mShownItemUuid :: Maybe ItemUUID of
+                Nothing -> False
+                Just i ->
+                  S.member i (syncResponseServerDeleted syncResponse)
+                    || S.member i (syncResponseClientDeleted syncResponse)
+          when shownItemWasDeleted clearShownItem
+          mergeSyncResponse syncResponse
+          logInfoN $ T.pack $ showSyncStats syncResponse
+          runDB anyUnsyncedWarning
+
+showSyncStats :: SyncResponse ci si a -> String
+showSyncStats SyncResponse {..} =
+  unlines
+    [ unwords [show $ length syncResponseServerAdded, "added   remotely"],
+      unwords [show $ length syncResponseServerDeleted, "deleted remotely"],
+      unwords [show $ length syncResponseClientAdded, "added   locally"],
+      unwords [show $ length syncResponseClientDeleted, "deleted locally"]
+    ]
 
 anyUnsyncedWarning :: (MonadIO m, MonadLogger m) => SqlPersistT m ()
 anyUnsyncedWarning = do

@@ -4,7 +4,6 @@ module Intray.Cli (intrayCli, dispatch) where
 
 import Control.Monad.Logger
 import qualified Data.Text as T
-import Database.Persist
 import Database.Persist.Sql
 import Database.Persist.Sqlite
 import Import

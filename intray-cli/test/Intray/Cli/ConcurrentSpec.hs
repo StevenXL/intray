@@ -5,18 +5,13 @@ module Intray.Cli.ConcurrentSpec
   )
 where
 
-import Control.Monad.Logger
 import Control.Monad.Reader
 import qualified Data.Text as T
 import Intray.Cli
-import Intray.Cli.Commands.Add
-import Intray.Cli.Env
 import Intray.Cli.OptParse
 import Intray.Cli.Sqlite
-import Intray.Cli.Store
 import Intray.Cli.TestUtils
 import Intray.Data
-import Intray.Server.TestUtils
 import TestImport
 import UnliftIO
 
@@ -24,10 +19,6 @@ spec :: Spec
 spec = sequential . cliMSpec $
   xdescribe "This test fails because the locking happens on an upper layer" $
     it "Going through the usual manual steps just works, even if multiple clients do it at the same time in the same place" $ \env -> testCliM env $ do
-      dataDir <- asks envDataDir
-      cacheDir <- asks envCacheDir
-      mClientEnv <- asks envClientEnv
-
       dispatch $
         DispatchRegister
           RegisterSettings

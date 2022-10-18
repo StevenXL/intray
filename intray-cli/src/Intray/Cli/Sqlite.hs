@@ -12,14 +12,11 @@ where
 
 import Data.Mergeless (SyncRequest, SyncResponse)
 import Data.Mergeless.Persistent as Mergeless
-import qualified Data.Text as T
 import Database.Persist.Sqlite
 import Import
 import Intray.API
 import Intray.Cli.DB
 import Intray.Cli.Env
-import Intray.Cli.OptParse
-import Intray.Cli.Path
 
 setShownItem :: ClientItemId -> CliM ()
 setShownItem clientItemId =
@@ -38,12 +35,12 @@ getShownItem = runDB $ fmap (shownItemItem . entityVal) <$> selectFirst [] []
 
 produceShownItem :: CliM (Maybe (Entity ClientItem))
 produceShownItem = do
-  mShownItem <- getShownItem
-  mClientItem <- fmap join $
-    forM mShownItem $ \shownItem -> do
+  mShownItemId <- getShownItem
+  mShownItem <- fmap join $
+    forM mShownItemId $ \shownItem -> do
       clientItem <- runDB $ get shownItem
       pure (Entity shownItem <$> clientItem)
-  case mClientItem of
+  case mShownItem of
     Just clientItem -> pure (Just clientItem)
     Nothing -> do
       mClientItem <- runDB $ selectFirst [] []

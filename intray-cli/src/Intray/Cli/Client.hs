@@ -4,9 +4,6 @@ module Intray.Cli.Client where
 
 import Import
 import Intray.Cli.Env
-import Intray.Cli.OptParse
-import Network.HTTP.Client
-import Network.HTTP.Client.TLS
 import Servant.Client
 
 runSingleClientOrErr :: ClientM a -> CliM (Maybe a)

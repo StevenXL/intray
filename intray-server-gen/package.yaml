@@ -73,6 +73,7 @@ tests:
     - mergeless
     - path
     - path-io
+    - persistent
     - servant
     - servant-client
     - servant-server

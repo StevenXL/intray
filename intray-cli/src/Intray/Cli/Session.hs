@@ -12,7 +12,6 @@ import qualified Data.ByteString.Builder as SBB
 import qualified Data.ByteString.Lazy as LB
 import Import
 import Intray.Cli.Env
-import Intray.Cli.OptParse
 import Intray.Cli.Path
 import Servant.Auth.Client
 import Web.Cookie
