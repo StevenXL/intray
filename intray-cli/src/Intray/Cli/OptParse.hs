@@ -20,6 +20,7 @@ module Intray.Cli.OptParse
 where
 
 import Autodocodec.Yaml
+import Control.Monad.Logger
 import qualified Data.Text as T
 import qualified Env
 import Import
@@ -64,6 +65,7 @@ combineToInstructions (Arguments cmd Flags {..}) Environment {..} mConf =
               )
               $ flagSyncStrategy <|> envSyncStrategy <|> mc configSyncStrategy
       let setAutoOpen = fromMaybe (AutoOpenWith "xdg-open") (flagAutoOpen <|> envAutoOpen <|> mc configAutoOpen)
+      let setLogLevel = fromMaybe LevelInfo (flagLogLevel <|> envLogLevel <|> mc configLogLevel)
       pure Settings {..}
     getDispatch =
       case cmd of
@@ -136,6 +138,7 @@ environmentParser =
       <*> optional (Env.var Env.str "DATA_DIR" (Env.help "data directory"))
       <*> optional (Env.var Env.auto "SYNC_STRATEGY" (Env.help "Sync strategy"))
       <*> optional (Env.var (fmap AutoOpenWith . Env.str) "AUTO_OPEN" (Env.help "The command to auto-open links and pictures"))
+      <*> optional (Env.var Env.auto "LOG_LEVEL" (Env.help "minimal severity of log messages"))
 
 getArguments :: IO Arguments
 getArguments = do
@@ -303,6 +306,16 @@ parseFlags =
       )
     <*> syncStrategyOpt
     <*> autoOpenOpt
+    <*> option
+      (Just <$> auto)
+      ( mconcat
+          [ long "log-level",
+            metavar "LOG_LEVEL",
+            value Nothing,
+            help $
+              "the log level, possible values: " <> show [LevelDebug, LevelInfo, LevelWarn, LevelError]
+          ]
+      )
 
 syncStrategyOpt :: Parser (Maybe SyncStrategy)
 syncStrategyOpt =

@@ -12,7 +12,7 @@ import Control.Applicative
 import Control.Monad.Logger
 import Data.Yaml (FromJSON, ToJSON)
 import Import
-import Intray.Data
+import Intray.API
 import Servant.Client
 
 data Arguments
@@ -60,7 +60,8 @@ data Flags = Flags
     flagCacheDir :: Maybe FilePath,
     flagDataDir :: Maybe FilePath,
     flagSyncStrategy :: Maybe SyncStrategy,
-    flagAutoOpen :: Maybe AutoOpen
+    flagAutoOpen :: Maybe AutoOpen,
+    flagLogLevel :: Maybe LogLevel
   }
   deriving (Show, Eq, Generic)
 
@@ -72,7 +73,8 @@ data Environment = Environment
     envCacheDir :: Maybe FilePath,
     envDataDir :: Maybe FilePath,
     envSyncStrategy :: Maybe SyncStrategy,
-    envAutoOpen :: Maybe AutoOpen
+    envAutoOpen :: Maybe AutoOpen,
+    envLogLevel :: Maybe LogLevel
   }
   deriving (Show, Eq, Generic)
 
@@ -83,7 +85,8 @@ data Configuration = Configuration
     configCacheDir :: Maybe FilePath,
     configDataDir :: Maybe FilePath,
     configSyncStrategy :: Maybe SyncStrategy,
-    configAutoOpen :: Maybe AutoOpen
+    configAutoOpen :: Maybe AutoOpen,
+    configLogLevel :: Maybe LogLevel
   }
   deriving (Show, Eq, Generic)
   deriving (FromJSON, ToJSON) via (Autodocodec Configuration)
@@ -108,13 +111,15 @@ instance HasCodec Configuration where
           .= configDataDir
         <*> optionalFieldOrNull "sync" "The sync strategy for non-sync commands." .= configSyncStrategy
         <*> optionalFieldOrNull "auto-open" "how to auto-open" .= configAutoOpen
+        <*> optionalFieldOrNull "log-level" "minimal severity for log message" .= configLogLevel
 
 data Settings = Settings
   { setBaseUrl :: Maybe BaseUrl,
     setCacheDir :: Path Abs Dir,
     setDataDir :: Path Abs Dir,
     setSyncStrategy :: SyncStrategy,
-    setAutoOpen :: AutoOpen
+    setAutoOpen :: AutoOpen,
+    setLogLevel :: LogLevel
   }
   deriving (Show, Eq, Generic)
 

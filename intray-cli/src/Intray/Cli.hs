@@ -4,10 +4,17 @@ module Intray.Cli (intrayCli) where
 
 import Control.Monad.Logger
 import qualified Data.Text as T
+import Database.Persist
+import Database.Persist.Sql
+import Database.Persist.Sqlite
 import Import
 import Intray.Cli.Commands
+import Intray.Cli.DB
 import Intray.Cli.Env
 import Intray.Cli.OptParse
+import Network.HTTP.Client as HTTP
+import Network.HTTP.Client.TLS as HTTP
+import Servant.Client
 import System.FileLock
 
 intrayCli :: IO ()
@@ -17,18 +24,27 @@ intrayCli = do
   dbPath <- resolveFile setDataDir "intray.sqlite3"
   dbLockPath <- resolveFile setDataDir "intray.sqlite3.lock"
 
-  withFileLock dbLockPath Exclusive $ \_ -> do
-    withSqlitePoolInfo (mkSqliteConnectionInfo $ T.pack $ fromAbsFile dbFile) 1 $ \pool ->
-      flip runSqlPool pool $ do
-        _ <- runMigrationQuiet clientAutoMigration
-        func
+  withFileLock (fromAbsFile dbLockPath) Exclusive $ \_ -> do
+    runStderrLoggingT . filterLogger (\_ ll -> ll >= setLogLevel) $
+      withSqlitePoolInfo (mkSqliteConnectionInfo $ T.pack $ fromAbsFile dbPath) 1 $ \pool -> do
+        flip runSqlPool pool $ do
+          _ <- runMigrationQuiet clientAutoMigration
+          pure ()
 
-    let mBurl = setBaseUrl set
-    mClientEnv <- forM mBurl $ \burl -> do
-      man <- newManager tlsManagerSettings
-      pure $ mkClientEnv man burl
+        mClientEnv <- forM setBaseUrl $ \burl -> do
+          man <- liftIO $ HTTP.newManager tlsManagerSettings
+          pure $ mkClientEnv man burl
 
-    runReaderT (dispatch disp) env
+        runReaderT
+          (dispatch disp)
+          Env
+            { envDataDir = setDataDir,
+              envCacheDir = setCacheDir,
+              envAutoOpen = setAutoOpen,
+              envSyncStrategy = setSyncStrategy,
+              envConnectionPool = pool,
+              envClientEnv = mClientEnv
+            }
 
 dispatch :: Dispatch -> CliM ()
 dispatch d =
