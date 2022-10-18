@@ -21,6 +21,7 @@ library:
   - http-client >=0.5
   - http-client-tls >=0.3
   - intray-api
+  - intray-cli-data
   - intray-client
   - intray-data
   - mergeless
@@ -81,6 +82,7 @@ tests:
     - intray-api
     - intray-api-gen
     - intray-cli
+    - intray-cli-data
     - intray-client
     - intray-data
     - intray-server-gen

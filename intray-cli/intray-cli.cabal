@@ -24,7 +24,6 @@ library
       Intray.Cli.Commands.Show
       Intray.Cli.Commands.Size
       Intray.Cli.Commands.Sync
-      Intray.Cli.DB
       Intray.Cli.Env
       Intray.Cli.OptParse
       Intray.Cli.OptParse.Types
@@ -54,6 +53,7 @@ library
     , http-client >=0.5
     , http-client-tls >=0.3
     , intray-api
+    , intray-cli-data
     , intray-client
     , intray-data
     , mergeless
@@ -120,6 +120,7 @@ test-suite intray-cli-test
     , intray-api
     , intray-api-gen
     , intray-cli
+    , intray-cli-data
     , intray-client
     , intray-data
     , intray-server-gen

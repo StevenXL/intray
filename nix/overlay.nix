@@ -65,6 +65,7 @@ in
       "intray-api" = intrayPkg "intray-api";
       "intray-api-gen" = intrayPkg "intray-api-gen";
       "intray-cli" = intrayPkgWithComp "intray" "intray-cli";
+      "intray-cli-data" = intrayPkg "intray" "intray-cli-data";
       "intray-client" = intrayPkg "intray-client";
       "intray-data" = intrayPkg "intray-data";
       "intray-data-gen" = intrayPkg "intray-data-gen";
