@@ -115,6 +115,8 @@ test-suite intray-cli-test
     , genvalidity-path
     , genvalidity-sydtest
     , genvalidity-sydtest-aeson
+    , http-client
+    , http-types
     , intray-api
     , intray-api-gen
     , intray-cli
@@ -129,5 +131,8 @@ test-suite intray-cli-test
     , servant
     , servant-client
     , sydtest
+    , sydtest-persistent-sqlite
+    , sydtest-wai
     , text >=1.2
+    , unliftio
   default-language: Haskell2010
