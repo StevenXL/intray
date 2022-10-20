@@ -74,6 +74,7 @@ tests:
     - async
     - base
     - bytestring
+    - filelock
     - genvalidity-path
     - genvalidity-sydtest
     - genvalidity-sydtest-aeson

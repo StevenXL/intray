@@ -5,7 +5,6 @@ module Intray.Cli.ConcurrentSpec
   )
 where
 
-import Control.Monad.Reader
 import qualified Data.Text as T
 import Intray.Cli
 import Intray.Cli.OptParse
@@ -17,29 +16,30 @@ import UnliftIO
 
 spec :: Spec
 spec = sequential . cliMSpec $
-  xdescribe "This test fails because the locking happens on an upper layer" $
-    it "Going through the usual manual steps just works, even if multiple clients do it at the same time in the same place" $ \env -> testCliM env $ do
-      dispatch $
+  it "Going through the usual manual steps just works, even if multiple clients do it at the same time in the same place" $ \settings -> do
+    let intray = testIntray settings
+    forM_ (setBaseUrl settings) $ \_ -> do
+      intray $
         DispatchRegister
           RegisterSettings
             { registerSetUsername = parseUsername "testuser",
               registerSetPassword = Just "testpassword"
             }
-      dispatch $
+      intray $
         DispatchLogin
           LoginSettings
             { loginSetUsername = parseUsername "testuser",
               loginSetPassword = Just "testpassword"
             }
 
-      let additions = 6
-      forConcurrently_ [1 .. additions] $ \i -> do
-        dispatch $
-          DispatchAddItem
-            AddSettings
-              { addSetContents = ["hello", "world", T.pack (show i)],
-                addSetReadStdin = False,
-                addSetRemote = False
-              }
-      s <- getStoreSize
-      liftIO $ s `shouldBe` additions
+    let additions = 6
+    forConcurrently_ [1 .. additions] $ \i -> do
+      intray $
+        DispatchAddItem
+          AddSettings
+            { addSetContents = ["hello", "world", T.pack (show i)],
+              addSetReadStdin = False,
+              addSetRemote = False
+            }
+    s <- testCliM settings getStoreSize
+    s `shouldBe` additions

@@ -112,6 +112,7 @@ test-suite intray-cli-test
       async
     , base
     , bytestring
+    , filelock
     , genvalidity-path
     , genvalidity-sydtest
     , genvalidity-sydtest-aeson
