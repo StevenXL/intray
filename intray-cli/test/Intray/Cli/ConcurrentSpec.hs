@@ -6,7 +6,6 @@ module Intray.Cli.ConcurrentSpec
 where
 
 import qualified Data.Text as T
-import Intray.Cli
 import Intray.Cli.OptParse
 import Intray.Cli.Sqlite
 import Intray.Cli.TestUtils
@@ -15,7 +14,7 @@ import TestImport
 import UnliftIO
 
 spec :: Spec
-spec = sequential . cliMSpec $
+spec = cliMSpec $
   it "Going through the usual manual steps just works, even if multiple clients do it at the same time in the same place" $ \settings -> do
     let intray = testIntray settings
     forM_ (setBaseUrl settings) $ \_ -> do

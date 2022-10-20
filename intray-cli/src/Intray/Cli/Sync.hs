@@ -19,7 +19,7 @@ import Intray.Cli.Env
 import Intray.Cli.OptParse
 import Intray.Cli.Session
 import Intray.Cli.Sqlite
-import Intray.Client (ItemUUID, SyncResponse (..), clientPostSync)
+import Intray.Client (ItemUUID, SyncResponse (..), Token, clientPostSync)
 import Servant.Client
 
 autoSyncStore :: CliM ()
@@ -27,36 +27,47 @@ autoSyncStore = do
   syncStrategy <- asks envSyncStrategy
   case syncStrategy of
     NeverSync -> pure ()
-    AlwaysSync -> tryToSyncStore
+    AlwaysSync -> do
+      mClientEnv <- asks envClientEnv
+      case mClientEnv of
+        Nothing -> pure ()
+        Just clientEnv -> do
+          mToken <- loadToken
+          case mToken of
+            Nothing -> pure ()
+            Just token -> actuallySync clientEnv token
 
 tryToSyncStore :: CliM ()
 tryToSyncStore = do
   mClientEnv <- asks envClientEnv
   case mClientEnv of
     Nothing -> logErrorN "No server configured."
-    Just clientEnv -> withToken $ \token -> do
-      syncRequest <- makeSyncRequest
-      mShownItemUuid <- do
-        mSi <- getShownItem
-        runDB $
-          fmap (join . join) $
-            forM mSi $ fmap (fmap clientItemServerIdentifier) . get
-      errOrSyncResponse <- liftIO $ runClientM (clientPostSync token syncRequest) clientEnv
-      case errOrSyncResponse of
-        Left err -> logErrorN $ T.pack $ unlines ["Failed to sync:", show err]
-        Right syncResponse -> do
-          -- If the shown item was deleted then we have to clear it because
-          -- otherwise it will refer to a row that won't exist anymore when the
-          -- sync response is merged.
-          let shownItemWasDeleted = case mShownItemUuid :: Maybe ItemUUID of
-                Nothing -> False
-                Just i ->
-                  S.member i (syncResponseServerDeleted syncResponse)
-                    || S.member i (syncResponseClientDeleted syncResponse)
-          when shownItemWasDeleted clearShownItem
-          mergeSyncResponse syncResponse
-          logInfoN $ T.pack $ "Sync succesful, stats:\n" <> showSyncStats syncResponse
-          runDB anyUnsyncedWarning
+    Just clientEnv -> withToken $ actuallySync clientEnv
+
+actuallySync :: ClientEnv -> Token -> CliM ()
+actuallySync clientEnv token = do
+  syncRequest <- makeSyncRequest
+  mShownItemUuid <- do
+    mSi <- getShownItem
+    runDB $
+      fmap (join . join) $
+        forM mSi $ fmap (fmap clientItemServerIdentifier) . get
+  errOrSyncResponse <- liftIO $ runClientM (clientPostSync token syncRequest) clientEnv
+  case errOrSyncResponse of
+    Left err -> logErrorN $ T.pack $ unlines ["Failed to sync:", show err]
+    Right syncResponse -> do
+      -- If the shown item was deleted then we have to clear it because
+      -- otherwise it will refer to a row that won't exist anymore when the
+      -- sync response is merged.
+      let shownItemWasDeleted = case mShownItemUuid :: Maybe ItemUUID of
+            Nothing -> False
+            Just i ->
+              S.member i (syncResponseServerDeleted syncResponse)
+                || S.member i (syncResponseClientDeleted syncResponse)
+      when shownItemWasDeleted clearShownItem
+      mergeSyncResponse syncResponse
+      logInfoN $ T.pack $ "Sync succesful, stats:\n" <> showSyncStats syncResponse
+      runDB anyUnsyncedWarning
 
 showSyncStats :: SyncResponse ci si a -> String
 showSyncStats SyncResponse {..} =

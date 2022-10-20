@@ -96,6 +96,7 @@ test-suite intray-cli-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Intray.Cli.Commands.AddSpec
       Intray.Cli.ConcurrentSpec
       Intray.Cli.NoSyncSpec
       Intray.Cli.SyncSpec
