@@ -19,4 +19,7 @@ showItem = do
   mItem <- produceShownItem
   case mItem of
     Nothing -> liftIO $ putStrLn "Done."
-    Just item -> prettyShowItemAndWait now item
+    Just item -> do
+      ao <- asks envAutoOpen
+      cd <- asks envCacheDir
+      liftIO $ prettyShowItemAndWait ao cd now item

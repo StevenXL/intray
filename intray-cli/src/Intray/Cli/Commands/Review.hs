@@ -2,37 +2,42 @@
 
 module Intray.Cli.Commands.Review (review) where
 
-import Control.Monad.Logger
-import qualified Data.Text as T
 import Data.Time
 import Import
 import Intray.Cli.Commands.Done
 import Intray.Cli.Env
+import Intray.Cli.OptParse.Types
 import Intray.Cli.Prompt
 import Intray.Cli.Sqlite
 import Intray.Cli.Store
 import Intray.Cli.Sync
+import System.FileLock
 
-review :: CliM ()
-review = do
-  autoSyncStore
-  mShownItem <- produceShownItem
-  case mShownItem of
-    Nothing -> logInfoN "Done."
-    Just clientItem -> do
-      now <- liftIO getCurrentTime
-      s <- getStoreSize
-      logInfoN $ T.pack $ unwords [show s, "items remaining"]
-      prettyShowItemAndWait now clientItem
-      res <- liftIO $ prompt "done [y/N]"
-      let cont = do
-            doneItem
-            review
-          stop = pure ()
-      case res of
-        "y" -> cont
-        "Y" -> cont
-        "n" -> stop
-        "N" -> stop
-        "" -> stop
-        _ -> review
+review :: Settings -> IO ()
+review settings = go (pure ())
+  where
+    go :: CliM () -> IO ()
+    go beforeFunc = do
+      mClientItemAndStoreSize <- runCliM settings Exclusive Exclusive $ do
+        beforeFunc
+        autoSyncStore
+        mShownItem <- produceShownItem
+        forM mShownItem $ \clientItem -> do
+          s <- getStoreSize
+          pure (clientItem, s)
+      case mClientItemAndStoreSize of
+        Nothing -> putStrLn "Done."
+        Just (clientItem, s) -> do
+          now <- liftIO getCurrentTime
+          putStrLn $ unwords [show s, "items remaining"]
+          prettyShowItemAndWait (setAutoOpen settings) (setCacheDir settings) now clientItem
+          res <- liftIO $ prompt "done [y/N]"
+          let cont = go doneItem
+              stop = pure ()
+          case res of
+            "y" -> cont
+            "Y" -> cont
+            "n" -> stop
+            "N" -> stop
+            "" -> stop
+            _ -> go (pure ())
