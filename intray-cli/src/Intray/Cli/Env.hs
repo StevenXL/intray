@@ -32,11 +32,12 @@ runCliM Settings {..} minimalExclusivity maximalExclusivity func = do
   dbPath <- resolveFile setDataDir "intray.sqlite3"
   dbLockPath <- resolveFile setDataDir "intray.sqlite3.lock"
 
-  ensureDir (parent dbPath)
+  ensureDir (parent dbLockPath)
   let actualExclusivity = case setSyncStrategy of
         NeverSync -> minimalExclusivity
         AlwaysSync -> maximalExclusivity
   withFileLock (fromAbsFile dbLockPath) actualExclusivity $ \_ -> do
+    liftIO $ ensureDir (parent dbPath)
     runStderrLoggingT . filterLogger (\_ ll -> ll >= setLogLevel) $
       withSqlitePoolInfo (mkSqliteConnectionInfo $ T.pack $ fromAbsFile dbPath) 1 $ \pool -> do
         flip runSqlPool pool $ do

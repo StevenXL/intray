@@ -6,8 +6,6 @@ module Intray.Cli.SyncSpec
 where
 
 import Intray.API.Gen ()
-import Intray.Cli
-import Intray.Cli.Env
 import Intray.Cli.OptParse
 import Intray.Cli.Session (loadToken)
 import Intray.Cli.Sqlite
@@ -23,8 +21,8 @@ spec = do
       forAllValid $ \ti ->
         case setBaseUrl settings of
           Nothing -> expectationFailure "Should not happen."
-          Just baseUrl -> do
-            let cenv = mkClientEnv man baseUrl
+          Just burl -> do
+            let cenv = mkClientEnv man burl
             withValidNewUserAndData cenv $ \un pw _ -> do
               let intray = testIntray settings
               intray $ DispatchLogin LoginSettings {loginSetUsername = Just un, loginSetPassword = Just pw}
@@ -49,8 +47,8 @@ spec = do
     itWithBoth "Can add items past the maximum allowed number of free items locally" $ \man settings ->
       case setBaseUrl settings of
         Nothing -> expectationFailure "Should not happen."
-        Just baseUrl -> do
-          let cenv = mkClientEnv man baseUrl
+        Just burl -> do
+          let cenv = mkClientEnv man burl
           withValidNewUserAndData cenv $ \un pw _ -> do
             let intray = testIntray settings
             intray $ DispatchLogin LoginSettings {loginSetUsername = Just un, loginSetPassword = Just pw}

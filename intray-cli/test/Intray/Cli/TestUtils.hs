@@ -4,7 +4,6 @@
 module Intray.Cli.TestUtils where
 
 import Intray.Cli
-import Intray.Cli.DB
 import Intray.Cli.Env
 import Intray.Cli.OptParse.Types
 import Intray.Server.TestUtils
@@ -12,7 +11,6 @@ import qualified Network.HTTP.Client as HTTP
 import System.FileLock
 import Test.Syd
 import Test.Syd.Path
-import Test.Syd.Persistent.Sqlite
 import Test.Syd.Wai
 import TestImport
 
@@ -37,24 +35,24 @@ cliMSpec s = managerSpec $ do
   describe "offline" $ setupAround offlineEnvSetupFunc s
 
 onlineCliMSpec :: CliSpec -> TestDef '[HTTP.Manager] ClientEnv
-onlineCliMSpec s = do
+onlineCliMSpec spec = do
   describe "online, with autosync" $
     setupAroundWith
       (\cenv -> (\s -> s {setBaseUrl = Just (baseUrl cenv), setSyncStrategy = AlwaysSync}) <$> offlineEnvSetupFunc)
-      s
+      spec
   describe "online, without autosync" $
     setupAroundWith
       (\cenv -> (\s -> s {setBaseUrl = Just (baseUrl cenv), setSyncStrategy = NeverSync}) <$> offlineEnvSetupFunc)
-      s
+      spec
 
 offlineCliMSpec :: CliSpec -> Spec
 offlineCliMSpec = managerSpec . setupAround offlineEnvSetupFunc
 
 offlineEnvSetupFunc :: SetupFunc Settings
 offlineEnvSetupFunc = do
-  setCacheDir <- tempDirSetupFunc "intray-cli-test-cache-dir"
-  setDataDir <- tempDirSetupFunc "intray-cli-test-data-dir"
-  setConnectionPool <- connectionPoolSetupFunc clientAutoMigration
+  tempDir <- tempDirSetupFunc "intray-cli-test-dir"
+  setCacheDir <- resolveDir tempDir "cache"
+  setDataDir <- resolveDir tempDir "data"
   let setSyncStrategy = NeverSync
   let setAutoOpen = DontAutoOpen
   let setLogLevel = LevelError
