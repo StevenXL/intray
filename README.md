@@ -14,20 +14,9 @@ git clone https://github.com/NorfairKing/intray.git --recursive
 
 ### Building
 
-
 #### With Nix
 
-To install only the command-line application `intray`:
-
-``` shell
-nix-env --install --file nix/pkgs.nix --attr intrayPackages.intray-cli
-```
-
-To also install the other intray applications like the server and web server:
-
-``` shell
-nix-env --install --file nix/pkgs.nix --attr intrayPackages
-```
+A flake is provided in `flake.nix`.
 
 
 #### With stack
@@ -144,34 +133,48 @@ sync: NeverSync
 ```
 
 
-### Setting up intray in Nix Home Manager
+### Setting up Intray using Home Manager
 
+
+See the `homeManagerModules.default` in the provided `flake.nix`.
 Within your `home.nix`, add the intray module from this repository:
 
 ``` nix
-{ pkgs, lib, ... }:
-with lib;
 let
-  intrayModule = (builtins.fetchGit {
-    url = "https://github.com/NorfairKing/intray";
-    ref = "master";
-    rev = "0000000000000000000000000000000000000000"; # Add a recent version here.
-  } + "/nix/home-manager-module.nix");
+  intrayModule = intray.homeManagerModules.${system}.default;
 in
 {
   imports = [
     intrayModule
-    # [...]
   ];
   programs.intray = {
     enable = true;
     sync = {
       enable = true;
       username = "YOUR_USERNAME_HERE";
-      password = "YOUR_PASSWORD_HERE";
+      password-file = "YOUR_PASSWORD_FILE_HERE";
     };
   };
 }
 ```
+### Setting up the Intray servers on NixOs
 
-Note that we have to use `builtins.fetchGit` and cannot use `fetchFromGitHub` because this needs to be fetched at evaluation time.
+
+See the `nixosModules.default` in the provided `flake.nix`.
+Within your `configuration.nix`, add the intray module from this repository:
+
+``` nix
+let
+  intrayModule = intray.nixosModules.${system}.default;
+in
+{
+  imports = [
+    intrayModule
+  ];
+  services.intray.production = {
+    enable = true;
+    api-server.enable = true;
+    web-server.enable = true;
+  };
+}
+```

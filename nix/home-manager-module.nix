@@ -1,3 +1,5 @@
+{ intrayReleasePackages
+}:
 { lib, pkgs, config, ... }:
 
 with lib;
@@ -16,7 +18,7 @@ in
           enable = mkEnableOption "Intray cli";
           intrayReleasePackages = mkOption {
             description = "The intrayReleasePackages attribute defined in the nix/overlay.nix file in the intray repository.";
-            default = (import ./pkgs.nix { }).intrayReleasePackages;
+            default = intrayReleasePackages;
           };
           config = mkOption {
             default = { };
@@ -45,8 +47,14 @@ in
                       description = "The username to use for syncing";
                     };
                     password = mkOption {
-                      type = types.str;
+                      type = types.nullOr types.str;
+                      default = null;
                       description = "The password to use for syncing";
+                    };
+                    password-file = mkOption {
+                      type = types.nullOr types.str;
+                      default = null;
+                      description = "The password file to use for syncing";
                     };
                     url = mkOption {
                       type = types.str;
@@ -68,6 +76,7 @@ in
         url = cfg.sync.url;
         username = cfg.sync.username;
         password = cfg.sync.password;
+        password-file = cfg.sync.password-file;
         sync = "NeverSync";
       };
 

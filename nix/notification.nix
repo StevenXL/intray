@@ -1,14 +1,18 @@
-{ pkgs ? import ./pkgs.nix
+{ lib
+, writeShellScript
+, intrayReleasePackages
 }:
 { userName
-, accessKey
+, accessKey ? null
+, accessKeyFile ? null
 , intrayUrl ? "https://api.intray.cs-syd.eu"
 }:
-
+with lib;
+assert (!(builtins.isNull accessKey && builtins.isNull accessKeyFile)); # "Either accessKey or accessKeyFile must be set.
 let
-  cli = pkgs.intrayReleasePackages.intray-cli;
+  cli = intrayReleasePackages.intray-cli;
 in
-pkgs.writeShellScript "intray-notification" ''
+writeShellScript "intray-notification" ''
   set -eou pipefail
   tempDir="$(mktemp --tmpdir=/tmp --directory intray-notification-XXXXXXXX)"
   export INTRAY_CACHE_DIR="$tempDir"
@@ -17,7 +21,8 @@ pkgs.writeShellScript "intray-notification" ''
   export INTRAY_URL="${intrayUrl}"
   export INTRAY_USERNAME="${userName}"
   export INTRAY_SYNC_STRATEGY="NeverSync"
-  export INTRAY_PASSWORD="${accessKey}"
+  ${optionalString (!builtins.isNull accessKey) ("export INTRAY_PASSWORD=${accessKey}")}
+  ${optionalString (!builtins.isNull accessKeyFile) ("export INTRAY_PASSWORD_FILE=${accessKeyFile}")}
   ${cli}/bin/intray login
   ${cli}/bin/intray add --stdin --remote "$@"
   rm -rf $tempDir

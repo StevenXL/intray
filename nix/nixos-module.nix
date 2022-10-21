@@ -1,7 +1,7 @@
-{ sources ? import ./sources.nix
-, pkgs ? import ./pkgs.nix { inherit sources; }
-, intrayReleasePackages ? pkgs.intrayReleasePackages
-, envname
+{ intray-server
+, intray-web-server
+}:
+{ envname
 }:
 { lib, pkgs, config, ... }:
 with lib;
@@ -165,7 +165,7 @@ in
             ''
               mkdir -p "${workingDir}"
               cd "${workingDir}"
-              ${intrayReleasePackages.intray-server}/bin/intray-server
+              ${intray-server}/bin/intray-server
             '';
           serviceConfig =
             {
@@ -210,7 +210,7 @@ in
             ''
               mkdir -p "${workingDir}"
               cd "${workingDir}"
-              ${intrayReleasePackages.intray-web-server}/bin/intray-web-server
+              ${intray-web-server}/bin/intray-web-server
             '';
           serviceConfig =
             {
@@ -226,13 +226,14 @@ in
         };
       };
       web-host =
-        let redirectHost = host: {
-          "www.${host}" = {
-            enableACME = true;
-            forceSSL = true;
-            globalRedirect = host;
+        let
+          redirectHost = host: {
+            "www.${host}" = {
+              enableACME = true;
+              forceSSL = true;
+              globalRedirect = host;
+            };
           };
-        };
         in
         optionalAttrs (cfg.web-server.enable or false && cfg.web-server.hosts != [ ])
           {
