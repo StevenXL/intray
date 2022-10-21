@@ -3,10 +3,10 @@
 module Intray.Cli.Commands.Done (doneItem) where
 
 import Control.Monad.Logger
-import Database.Persist as DB
 import Import
 import Intray.Cli.Env
 import Intray.Cli.Sqlite
+import Intray.Cli.Sync
 
 doneItem :: CliM ()
 doneItem = do
@@ -15,4 +15,5 @@ doneItem = do
     Nothing -> logWarnN "Are you sure?, it doesn't look like you showed an item yet."
     Just ci -> do
       clearShownItem
-      runDB $ DB.delete ci
+      deleteClientItem ci
+      autoSyncStore

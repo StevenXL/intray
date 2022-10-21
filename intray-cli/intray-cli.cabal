@@ -97,6 +97,7 @@ test-suite intray-cli-test
   main-is: Spec.hs
   other-modules:
       Intray.Cli.Commands.AddSpec
+      Intray.Cli.Commands.DoneSpec
       Intray.Cli.ConcurrentSpec
       Intray.Cli.NoSyncSpec
       Intray.Cli.SyncSpec

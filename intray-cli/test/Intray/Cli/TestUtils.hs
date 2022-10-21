@@ -30,17 +30,17 @@ testCliM settings = runCliM settings Shared Shared -- Most likely to go wrong
 
 cliMSpec :: CliSpec -> Spec
 cliMSpec s = managerSpec $ do
-  describe "online, with autosync" $ setupAroundWith' (\man _ -> onlineWithAutosyncEnvSetupFunc man) s
-  describe "online, without autosync" $ setupAroundWith' (\man _ -> onlineWithoutAutosyncEnvSetupFunc man) s
-  describe "offline" $ setupAround offlineEnvSetupFunc s
+  describe "online, with autosync" . modifyMaxSuccess (`div` 10) $ setupAroundWith' (\man _ -> onlineWithAutosyncEnvSetupFunc man) s
+  describe "online, without autosync" . modifyMaxSuccess (`div` 10) $ setupAroundWith' (\man _ -> onlineWithoutAutosyncEnvSetupFunc man) s
+  describe "offline" . modifyMaxSuccess (`div` 5) $ setupAround offlineEnvSetupFunc s
 
 onlineCliMSpec :: CliSpec -> TestDef '[HTTP.Manager] ClientEnv
 onlineCliMSpec spec = do
-  describe "online, with autosync" $
+  describe "online, with autosync" . modifyMaxSuccess (`div` 10) $
     setupAroundWith
       (\cenv -> (\s -> s {setBaseUrl = Just (baseUrl cenv), setSyncStrategy = AlwaysSync}) <$> offlineEnvSetupFunc)
       spec
-  describe "online, without autosync" $
+  describe "online, without autosync" . modifyMaxSuccess (`div` 10) $
     setupAroundWith
       (\cenv -> (\s -> s {setBaseUrl = Just (baseUrl cenv), setSyncStrategy = NeverSync}) <$> offlineEnvSetupFunc)
       spec
