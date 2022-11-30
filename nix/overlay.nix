@@ -18,7 +18,7 @@ in
 
 
   intrayReleasePackages = mapAttrs
-    (_: pkg: justStaticExecutables (doCheck pkg))
+    (_: pkg: justStaticExecutables pkg)
     final.haskellPackages.intrayPackages;
 
   intrayRelease = final.symlinkJoin {
@@ -51,7 +51,7 @@ in
                     doHaddock = false;
                     doCoverage = false;
                     doHoogle = false;
-                    doCheck = false; # Only check the release version.
+                    doCheck = true;
                     hyperlinkSource = false;
                     enableLibraryProfiling = false;
                     enableExecutableProfiling = false;

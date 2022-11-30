@@ -28,6 +28,8 @@
     linkcheck.flake = false;
     seocheck.url = "github:NorfairKing/seocheck?ref=flake";
     seocheck.flake = false;
+    dekking.url = "github:NorfairKing/dekking";
+    dekking.flake = false;
   };
 
   outputs =
@@ -45,6 +47,7 @@
     , openapi-code-generator
     , linkcheck
     , seocheck
+    , dekking
     }:
     let
       system = "x86_64-linux";
@@ -63,6 +66,7 @@
           (import (openapi-code-generator + "/nix/overlay.nix"))
           (import (linkcheck + "/nix/overlay.nix"))
           (import (seocheck + "/nix/overlay.nix"))
+          (import (dekking + "/nix/overlay.nix"))
         ];
       };
       pkgs = pkgsFor nixpkgs;
@@ -72,6 +76,16 @@
       overlays.${system} = import ./nix/overlay.nix;
       packages.${system}.default = pkgs.intrayRelease;
       checks.${system} = {
+        coverage-report = pkgs.dekking.makeCoverageReport {
+          name = "test-coverage-report";
+          packages = [
+            "intray-api"
+            "intray-api-gen"
+            "intray-cli-data"
+            "intray-data"
+            "intray-data-gen"
+          ];
+        };
         nixos-module-test = import ./nix/nixos-module-test.nix {
           inherit pkgs;
           home-manager = home-manager.nixosModules.home-manager;
