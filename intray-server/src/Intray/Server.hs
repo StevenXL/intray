@@ -1,5 +1,7 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ImpredicativeTypes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -62,6 +64,7 @@ intrayApp se = addPolicy . serveWithContext intrayAPI (intrayAppContext se) $ ma
           corsMethods = ["GET", "POST", "HEAD", "DELETE"]
         }
 
+{-# ANN makeIntrayServer ("NOCOVER" :: String) #-}
 makeIntrayServer :: IntrayServerEnv -> Server IntrayAPI
 makeIntrayServer cfg =
   hoistServerWithContext

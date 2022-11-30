@@ -18,7 +18,7 @@ in
 
 
   intrayReleasePackages = mapAttrs
-    (_: pkg: justStaticExecutables (doCheck pkg))
+    (_: pkg: justStaticExecutables pkg)
     final.haskellPackages.intrayPackages;
 
   intrayRelease = final.symlinkJoin {
@@ -40,42 +40,36 @@ in
           self: super:
             let
               generatedStripePackage = self.callPackage (generatedStripe + "/default.nix") { };
-              intrayPkg = name:
-                overrideCabal
-                  (self.callPackage
-                    (../${name}/default.nix)
-                    { }
-                  )
-                  (old: {
-                    doBenchmark = true;
-                    doHaddock = false;
-                    doCoverage = false;
-                    doHoogle = false;
-                    doCheck = false; # Only check the release version.
-                    hyperlinkSource = false;
-                    enableLibraryProfiling = false;
-                    enableExecutableProfiling = false;
+              intrayPkg = name: overrideCabal (self.callPackage (../${name}/default.nix) { }) (old: {
+                doBenchmark = true;
+                doHaddock = false;
+                doCoverage = false;
+                doHoogle = false;
+                doCheck = true;
+                hyperlinkSource = false;
+                enableLibraryProfiling = false;
+                enableExecutableProfiling = false;
 
-                    configureFlags = (old.configureFlags or [ ]) ++ [
-                      # Optimisations
-                      "--ghc-options=-O2"
-                      # Extra warnings
-                      "--ghc-options=-Wall"
-                      "--ghc-options=-Wincomplete-uni-patterns"
-                      "--ghc-options=-Wincomplete-record-updates"
-                      "--ghc-options=-Wpartial-fields"
-                      "--ghc-options=-Widentities"
-                      "--ghc-options=-Wredundant-constraints"
-                      "--ghc-options=-Wcpp-undef"
-                      "--ghc-options=-Werror"
-                    ];
-                    buildDepends = (old.buildDepends or [ ]) ++ [
-                      final.haskellPackages.autoexporter
-                    ];
-                    # Ugly hack because we can't just add flags to the 'test' invocation.
-                    # Show test output as we go, instead of all at once afterwards.
-                    testTarget = (old.testTarget or "") + " --show-details=direct";
-                  });
+                configureFlags = (old.configureFlags or [ ]) ++ [
+                  # Optimisations
+                  "--ghc-options=-O2"
+                  # Extra warnings
+                  "--ghc-options=-Wall"
+                  "--ghc-options=-Wincomplete-uni-patterns"
+                  "--ghc-options=-Wincomplete-record-updates"
+                  "--ghc-options=-Wpartial-fields"
+                  "--ghc-options=-Widentities"
+                  "--ghc-options=-Wredundant-constraints"
+                  "--ghc-options=-Wcpp-undef"
+                  "--ghc-options=-Werror"
+                ];
+                buildDepends = (old.buildDepends or [ ]) ++ [
+                  final.haskellPackages.autoexporter
+                ];
+                # Ugly hack because we can't just add flags to the 'test' invocation.
+                # Show test output as we go, instead of all at once afterwards.
+                testTarget = (old.testTarget or "") + " --show-details=direct";
+              });
               intrayPkgWithComp =
                 exeName: name:
                 generateOptparseApplicativeCompletion exeName (intrayPkg name);
@@ -133,41 +127,33 @@ in
                             "sha256:1lqd60f1pml8zc93hgwcm6amkcy6rnbq3cyxqv5a3a25jnsnci23";
                         };
                     in
-                    overrideCabal (intrayPkgWithOwnComp "intray-web-server") (
-                      old:
-                      {
-                        preConfigure =
-                          ''
-                            ${old.preConfigure or ""}
+                    overrideCabal (intrayPkgWithOwnComp "intray-web-server") (old: {
+                      preConfigure = (old.preConfigure or "") + ''
+                        mkdir -p static/
+                        ln -s ${jquery-js} static/jquery.min.js
+                        mkdir -p static/bulma/
+                        ln -s ${bulma-css} static/bulma/bulma.min.css
+                        ln -s ${bulma-tooltip-css} static/bulma/bulma-tooltip.min.css
+                        mkdir -p static/semantic/themes/default/assets/fonts
+                        ln -s ${icons-ttf} static/semantic/themes/default/assets/fonts/icons.ttf
+                        ln -s ${icons-woff} static/semantic/themes/default/assets/fonts/icons.woff
+                        ln -s ${icons-woff2} static/semantic/themes/default/assets/fonts/icons.woff2
+                      '';
+                      postInstall = (old.postInstall or "") + ''
+                        export INTRAY_WEB_SERVER_API_URL=http://localhost:8000 # dummy
 
-                            mkdir -p static/
-                            ln -s ${jquery-js} static/jquery.min.js
-                            mkdir -p static/bulma/
-                            ln -s ${bulma-css} static/bulma/bulma.min.css
-                            ln -s ${bulma-tooltip-css} static/bulma/bulma-tooltip.min.css
-                            mkdir -p static/semantic/themes/default/assets/fonts
-                            ln -s ${icons-ttf} static/semantic/themes/default/assets/fonts/icons.ttf
-                            ln -s ${icons-woff} static/semantic/themes/default/assets/fonts/icons.woff
-                            ln -s ${icons-woff2} static/semantic/themes/default/assets/fonts/icons.woff2
-                          '';
-                        postInstall = ''
-                          ${old.postInstall or ""}
+                        ${self.intray-server}/bin/intray-server --port 8000 &
+                        $out/bin/intray-web-server --port 8080 &
 
-                          export INTRAY_WEB_SERVER_API_URL=http://localhost:8000 # dummy
+                        sleep 0.5
 
-                          ${self.intrayPackages.intray-server}/bin/intray-server --port 8000 &
-                          $out/bin/intray-web-server --port 8080 &
+                        ${final.linkcheck}/bin/linkcheck http://localhost:8080
+                        ${final.seocheck}/bin/seocheck http://localhost:8080
 
-                          sleep 0.5
-
-                          ${final.linkcheck}/bin/linkcheck http://localhost:8080
-                          ${final.seocheck}/bin/seocheck http://localhost:8080
-
-                          ${final.killall}/bin/killall intray-web-server
-                          ${final.killall}/bin/killall intray-server
-                        '';
-                      }
-                    );
+                        ${final.killall}/bin/killall intray-web-server
+                        ${final.killall}/bin/killall intray-server
+                      '';
+                    });
                 };
             in
             {
