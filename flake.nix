@@ -79,11 +79,23 @@
         coverage-report = pkgs.dekking.makeCoverageReport {
           name = "test-coverage-report";
           packages = [
+            "intray-cli"
+            # "intray-web-server" # Doesn't link until intray-server can be covered.
+          ];
+          coverables = [
             "intray-api"
-            "intray-api-gen"
             "intray-cli-data"
+            "intray-client"
             "intray-data"
+            # "intray-server" # Does not compile yet.
+          ];
+          coverage = [
+            "intray-api-gen"
             "intray-data-gen"
+            "intray-server-gen"
+          ];
+          needToBeLinkedAgainstDekkingValue = [
+            "intray-server" # Move this to the 'packages' section once it compiles 
           ];
         };
         nixos-module-test = import ./nix/nixos-module-test.nix {
