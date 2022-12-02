@@ -63,12 +63,8 @@ in
                   "--ghc-options=-Wcpp-undef"
                   "--ghc-options=-Werror"
                 ];
-                buildFlags = (old.buildFlags or [ ]) ++ [
-                  "--ghc-option=-package=dekking-value"
-                ];
                 buildDepends = (old.buildDepends or [ ]) ++ [
                   final.haskellPackages.autoexporter
-                  final.haskellPackages.dekking-value
                 ];
                 # Ugly hack because we can't just add flags to the 'test' invocation.
                 # Show test output as we go, instead of all at once afterwards.
@@ -146,7 +142,7 @@ in
                       postInstall = (old.postInstall or "") + ''
                         export INTRAY_WEB_SERVER_API_URL=http://localhost:8000 # dummy
 
-                        ${self.intrayPackages.intray-server}/bin/intray-server --port 8000 &
+                        ${self.intray-server}/bin/intray-server --port 8000 &
                         $out/bin/intray-web-server --port 8080 &
 
                         sleep 0.5
