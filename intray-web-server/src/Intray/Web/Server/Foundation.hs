@@ -140,6 +140,7 @@ data LoginData = LoginData
 loginFormPostTargetR :: AuthRoute
 loginFormPostTargetR = PluginR intrayAuthPluginName ["login"]
 
+{-# ANN postLoginR ("NOCOVER" :: String) #-}
 postLoginR :: IntrayAuthHandler TypedContent
 postLoginR = do
   let loginInputForm = LoginData <$> ireq textField "userkey" <*> ireq passwordField "passphrase"

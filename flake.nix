@@ -94,10 +94,6 @@
             "intray-data-gen"
             "intray-server-gen"
           ];
-          exceptions = [
-            "Intray.Server"
-            "Intray.Web.Server.Foundation"
-          ];
         };
         nixos-module-test = import ./nix/nixos-module-test.nix {
           inherit pkgs;

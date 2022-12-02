@@ -132,36 +132,32 @@ in
                         };
                     in
                     overrideCabal (intrayPkgWithOwnComp "intray-web-server") (old: {
-                      preConfigure = (old.preConfigure or "") +
-                        ''
-
-                            mkdir -p static/
-                            ln -s ${jquery-js} static/jquery.min.js
-                            mkdir -p static/bulma/
-                            ln -s ${bulma-css} static/bulma/bulma.min.css
-                            ln -s ${bulma-tooltip-css} static/bulma/bulma-tooltip.min.css
-                            mkdir -p static/semantic/themes/default/assets/fonts
-                            ln -s ${icons-ttf} static/semantic/themes/default/assets/fonts/icons.ttf
-                            ln -s ${icons-woff} static/semantic/themes/default/assets/fonts/icons.woff
-                            ln -s ${icons-woff2} static/semantic/themes/default/assets/fonts/icons.woff2
-                          '';
+                      preConfigure = (old.preConfigure or "") + ''
+                        mkdir -p static/
+                        ln -s ${jquery-js} static/jquery.min.js
+                        mkdir -p static/bulma/
+                        ln -s ${bulma-css} static/bulma/bulma.min.css
+                        ln -s ${bulma-tooltip-css} static/bulma/bulma-tooltip.min.css
+                        mkdir -p static/semantic/themes/default/assets/fonts
+                        ln -s ${icons-ttf} static/semantic/themes/default/assets/fonts/icons.ttf
+                        ln -s ${icons-woff} static/semantic/themes/default/assets/fonts/icons.woff
+                        ln -s ${icons-woff2} static/semantic/themes/default/assets/fonts/icons.woff2
+                      '';
                       postInstall = (old.postInstall or "") + ''
+                        export INTRAY_WEB_SERVER_API_URL=http://localhost:8000 # dummy
 
-                          export INTRAY_WEB_SERVER_API_URL=http://localhost:8000 # dummy
+                        ${self.intrayPackages.intray-server}/bin/intray-server --port 8000 &
+                        $out/bin/intray-web-server --port 8080 &
 
-                          ${self.intrayPackages.intray-server}/bin/intray-server --port 8000 &
-                          $out/bin/intray-web-server --port 8080 &
+                        sleep 0.5
 
-                          sleep 0.5
+                        ${final.linkcheck}/bin/linkcheck http://localhost:8080
+                        ${final.seocheck}/bin/seocheck http://localhost:8080
 
-                          ${final.linkcheck}/bin/linkcheck http://localhost:8080
-                          ${final.seocheck}/bin/seocheck http://localhost:8080
-
-                          ${final.killall}/bin/killall intray-web-server
-                          ${final.killall}/bin/killall intray-server
-                        '';
-                    }
-                    );
+                        ${final.killall}/bin/killall intray-web-server
+                        ${final.killall}/bin/killall intray-server
+                      '';
+                    });
                 };
             in
             {

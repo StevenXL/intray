@@ -20,11 +20,11 @@
     "dekking": {
       "flake": false,
       "locked": {
-        "lastModified": 1669910700,
-        "narHash": "sha256-n0Y3VUsem5Xb13ODWssQVjWMy6h9ww8VpsbzKNjTV2Y=",
+        "lastModified": 1669946002,
+        "narHash": "sha256-fxXUrC/42ryuZSBM887aR47yV6iqFU4WsrD5OJdYMEI=",
         "owner": "NorfairKing",
         "repo": "dekking",
-        "rev": "1c936d23bd9ed50e1d54170bd763b91b59261893",
+        "rev": "e956fe4144972fa73d508317ec621a601e25f9e5",
         "type": "github"
       },
       "original": {

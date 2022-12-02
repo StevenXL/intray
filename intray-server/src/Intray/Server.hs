@@ -64,6 +64,7 @@ intrayApp se = addPolicy . serveWithContext intrayAPI (intrayAppContext se) $ ma
           corsMethods = ["GET", "POST", "HEAD", "DELETE"]
         }
 
+{-# ANN makeIntrayServer ("NOCOVER" :: String) #-}
 makeIntrayServer :: IntrayServerEnv -> Server IntrayAPI
 makeIntrayServer cfg =
   hoistServerWithContext
