@@ -80,22 +80,23 @@
           name = "test-coverage-report";
           packages = [
             "intray-cli"
-            # "intray-web-server" # Doesn't link until intray-server can be covered.
-          ];
-          coverables = [
+            "intray-web-server"
             "intray-api"
             "intray-cli-data"
             "intray-client"
             "intray-data"
-            # "intray-server" # Does not compile yet.
+          ];
+          coverables = [
+            "intray-server"
           ];
           coverage = [
             "intray-api-gen"
             "intray-data-gen"
             "intray-server-gen"
           ];
-          needToBeLinkedAgainstDekkingValue = [
-            "intray-server" # Move this to the 'packages' section once it compiles 
+          exceptions = [
+            "Intray.Server"
+            "Intray.Web.Server.Foundation"
           ];
         };
         nixos-module-test = import ./nix/nixos-module-test.nix {

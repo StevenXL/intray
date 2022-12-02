@@ -40,42 +40,40 @@ in
           self: super:
             let
               generatedStripePackage = self.callPackage (generatedStripe + "/default.nix") { };
-              intrayPkg = name:
-                overrideCabal
-                  (self.callPackage
-                    (../${name}/default.nix)
-                    { }
-                  )
-                  (old: {
-                    doBenchmark = true;
-                    doHaddock = false;
-                    doCoverage = false;
-                    doHoogle = false;
-                    doCheck = true;
-                    hyperlinkSource = false;
-                    enableLibraryProfiling = false;
-                    enableExecutableProfiling = false;
+              intrayPkg = name: overrideCabal (self.callPackage (../${name}/default.nix) { }) (old: {
+                doBenchmark = true;
+                doHaddock = false;
+                doCoverage = false;
+                doHoogle = false;
+                doCheck = true;
+                hyperlinkSource = false;
+                enableLibraryProfiling = false;
+                enableExecutableProfiling = false;
 
-                    configureFlags = (old.configureFlags or [ ]) ++ [
-                      # Optimisations
-                      "--ghc-options=-O2"
-                      # Extra warnings
-                      "--ghc-options=-Wall"
-                      "--ghc-options=-Wincomplete-uni-patterns"
-                      "--ghc-options=-Wincomplete-record-updates"
-                      "--ghc-options=-Wpartial-fields"
-                      "--ghc-options=-Widentities"
-                      "--ghc-options=-Wredundant-constraints"
-                      "--ghc-options=-Wcpp-undef"
-                      "--ghc-options=-Werror"
-                    ];
-                    buildDepends = (old.buildDepends or [ ]) ++ [
-                      final.haskellPackages.autoexporter
-                    ];
-                    # Ugly hack because we can't just add flags to the 'test' invocation.
-                    # Show test output as we go, instead of all at once afterwards.
-                    testTarget = (old.testTarget or "") + " --show-details=direct";
-                  });
+                configureFlags = (old.configureFlags or [ ]) ++ [
+                  # Optimisations
+                  "--ghc-options=-O2"
+                  # Extra warnings
+                  "--ghc-options=-Wall"
+                  "--ghc-options=-Wincomplete-uni-patterns"
+                  "--ghc-options=-Wincomplete-record-updates"
+                  "--ghc-options=-Wpartial-fields"
+                  "--ghc-options=-Widentities"
+                  "--ghc-options=-Wredundant-constraints"
+                  "--ghc-options=-Wcpp-undef"
+                  "--ghc-options=-Werror"
+                ];
+                buildFlags = (old.buildFlags or [ ]) ++ [
+                  "--ghc-option=-package=dekking-value"
+                ];
+                buildDepends = (old.buildDepends or [ ]) ++ [
+                  final.haskellPackages.autoexporter
+                  final.haskellPackages.dekking-value
+                ];
+                # Ugly hack because we can't just add flags to the 'test' invocation.
+                # Show test output as we go, instead of all at once afterwards.
+                testTarget = (old.testTarget or "") + " --show-details=direct";
+              });
               intrayPkgWithComp =
                 exeName: name:
                 generateOptparseApplicativeCompletion exeName (intrayPkg name);
@@ -133,12 +131,9 @@ in
                             "sha256:1lqd60f1pml8zc93hgwcm6amkcy6rnbq3cyxqv5a3a25jnsnci23";
                         };
                     in
-                    overrideCabal (intrayPkgWithOwnComp "intray-web-server") (
-                      old:
-                      {
-                        preConfigure =
-                          ''
-                            ${old.preConfigure or ""}
+                    overrideCabal (intrayPkgWithOwnComp "intray-web-server") (old: {
+                      preConfigure = (old.preConfigure or "") +
+                        ''
 
                             mkdir -p static/
                             ln -s ${jquery-js} static/jquery.min.js
@@ -150,8 +145,7 @@ in
                             ln -s ${icons-woff} static/semantic/themes/default/assets/fonts/icons.woff
                             ln -s ${icons-woff2} static/semantic/themes/default/assets/fonts/icons.woff2
                           '';
-                        postInstall = ''
-                          ${old.postInstall or ""}
+                      postInstall = (old.postInstall or "") + ''
 
                           export INTRAY_WEB_SERVER_API_URL=http://localhost:8000 # dummy
 
@@ -166,7 +160,7 @@ in
                           ${final.killall}/bin/killall intray-web-server
                           ${final.killall}/bin/killall intray-server
                         '';
-                      }
+                    }
                     );
                 };
             in
