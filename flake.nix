@@ -8,6 +8,9 @@
     nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-22.05";
     home-manager.url = "github:nix-community/home-manager?ref=release-22.05";
     pre-commit-hooks.url = "github:cachix/pre-commit-hooks.nix";
+    haskell-dependency-graph-nix.url = "github:NorfairKing/haskell-dependency-graph-nix";
+    haskell-dependency-graph-nix.inputs.nixpkgs.follows = "nixpkgs";
+    haskell-dependency-graph-nix.inputs.pre-commit-hooks.follows = "pre-commit-hooks";
     validity.url = "github:NorfairKing/validity?ref=flake";
     validity.flake = false;
     autodocodec.url = "github:NorfairKing/autodocodec?ref=flake";
@@ -35,6 +38,7 @@
     , nixpkgs
     , home-manager
     , pre-commit-hooks
+    , haskell-dependency-graph-nix
     , validity
     , safe-coloured-text
     , sydtest
@@ -77,6 +81,10 @@
           home-manager = home-manager.nixosModules.home-manager;
           intray-nixos-module-factory = self.nixosModuleFactories.${system}.default;
           intray-home-manager-module = self.homeManagerModules.${system}.default;
+        };
+        dependency-graph = haskell-dependency-graph-nix.lib.${system}.makeDependencyGraph {
+          packages = builtins.attrNames pkgs.haskellPackages.intrayPackages;
+          inherit (pkgs) haskellPackages;
         };
         pre-commit = pre-commit-hooks.lib.${system}.run {
           src = ./.;
