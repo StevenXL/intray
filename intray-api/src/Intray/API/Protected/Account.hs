@@ -19,7 +19,6 @@ import Import
 import Intray.API.Protected.Account.Types
 import Intray.API.Types
 import Servant.API
-import Servant.API.Generic
 
 type IntrayProtectedAccountAPI = ToServantApi IntrayProtectedAccountSite
 

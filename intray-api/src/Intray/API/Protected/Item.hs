@@ -18,7 +18,6 @@ import Intray.API.Protected.Item.Types
 import Intray.API.Types
 import Intray.Cli.DB (ClientItemId)
 import Servant.API
-import Servant.API.Generic
 
 type IntrayProtectedItemAPI = ToServantApi IntrayProtectedItemSite
 

@@ -25,7 +25,6 @@ import Import
 import Intray.API.Protected.AccessKey.Types
 import Intray.API.Types
 import Servant.API
-import Servant.API.Generic
 
 type IntrayProtectedAccessKeyAPI = ToServantApi IntrayProtectedAccessKeySite
 

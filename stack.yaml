@@ -1,4 +1,4 @@
-snapshot: lts-19.6
+snapshot: lts-19.32
 packages:
 - intray-api
 - intray-api-gen

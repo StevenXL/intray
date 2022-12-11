@@ -23,7 +23,6 @@ import Intray.API.Protected
 import Intray.API.Types
 import Intray.Data
 import Servant.API
-import Servant.API.Generic
 
 intrayAPI :: Proxy IntrayAPI
 intrayAPI = Proxy
