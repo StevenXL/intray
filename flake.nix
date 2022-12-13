@@ -78,7 +78,10 @@
     in
     {
       overlays.${system} = import ./nix/overlay.nix;
-      packages.${system}.default = pkgs.intrayRelease;
+      packages.${system} = {
+        default = pkgs.intrayRelease;
+        generatedIntrayStripeCode = pkgs.generatedIntrayStripeCode;
+      };
       checks.${system} = {
         coverage-report = pkgs.dekking.makeCoverageReport {
           name = "test-coverage-report";
